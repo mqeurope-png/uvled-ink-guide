@@ -1,40 +1,12 @@
 import { useState, useMemo } from 'react';
-import {
-  ShoppingCart,
-  Eye,
-  ChevronDown,
-  ChevronUp,
-  ArrowRight,
-  Calculator,
-  Columns3,
-  PackageOpen,
-  X,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart, Plus, Minus, Check, GitCompareArrows, X, TrendingUp } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { WizardState } from '@/lib/wizardTypes';
-import {
-  getRecommendations,
-  calculateROI,
-  Recommendation,
-} from '@/lib/wizardRecommendations';
-import { parsePrice, formatPrice } from '@/lib/quoteUtils';
 import { printerModels } from '@/lib/printerData';
+import { parsePrice, formatPrice } from '@/lib/quoteUtils';
+import { useCountUp } from '@/hooks/useCountUp';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 
 interface StepProps {
   state: WizardState;
@@ -42,488 +14,403 @@ interface StepProps {
   t: (key: string) => string;
 }
 
-export function StepRecommendations({ state, updateState, t }: StepProps) {
-  const [specsModelId, setSpecsModelId] = useState<string | null>(null);
-  const [roiOpen, setRoiOpen] = useState(false);
-  const [compareOpen, setCompareOpen] = useState(false);
-  const [roiInputs, setRoiInputs] = useState<
-    Record<string, { sellingPrice: number; unitsPerDay: number }>
-  >({});
-  const [accessoriesOpen, setAccessoriesOpen] = useState<Record<string, boolean>>({});
+// Price display component with count-up animation
+function AnimatedPrice({ price, delay }: { price: string | undefined; delay: number }) {
+  const numericPrice = parsePrice(price) || 0;
+  const animatedValue = useCountUp(numericPrice, 800, 0, true);
+  return <span className="text-price text-lg">{formatPrice(animatedValue)}</span>;
+}
 
-  const recommendations = useMemo(() => getRecommendations(state), [state]);
+// ROI Chart component
+function ROIChart({ investment, revenuePerUnit, costPerUnit, unitsPerDay, t }: {
+  investment: number;
+  revenuePerUnit: number;
+  costPerUnit: number;
+  unitsPerDay: number;
+  t: (key: string) => string;
+}) {
+  const monthlyRevenue = unitsPerDay * 22 * revenuePerUnit; // 22 working days
+  const monthlyCost = unitsPerDay * 22 * costPerUnit;
+  const monthlyProfit = monthlyRevenue - monthlyCost;
+  const breakEvenMonth = monthlyProfit > 0 ? Math.ceil(investment / monthlyProfit) : 99;
 
-  // Empty state for non-UV production types
-  if (state.productionType !== 'uvPrinting') {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <PackageOpen className="h-16 w-16 text-primary mb-4" />
-        <h3 className="text-lg font-semibold mb-2">{t('rec_noResults')}</h3>
-        <p className="text-muted-foreground max-w-md mb-6">
-          {t('rec_comingSoonMsg')}
-        </p>
-        <Button
-          className="bg-primary text-white rounded-lg hover:brightness-[0.92]"
-          onClick={() => updateState({ selectedProducts: [] })}
-        >
-          {t('rec_skipToContact')}
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
-    );
-  }
-
-  const selectedModels = recommendations.filter((r) =>
-    state.selectedProducts.includes(r.model.id)
-  );
-
-  const specsModel = specsModelId
-    ? printerModels.find((m) => m.id === specsModelId)
-    : null;
-
-  function toggleProduct(modelId: string) {
-    const current = state.selectedProducts;
-    const updated = current.includes(modelId)
-      ? current.filter((id) => id !== modelId)
-      : [...current, modelId];
-    updateState({ selectedProducts: updated });
-  }
-
-  function toggleAccessory(
-    modelId: string,
-    accessoryId: string,
-    name: string,
-    price?: string
-  ) {
-    const current = state.selectedAccessories;
-    const exists = current.some(
-      (a) => a.modelId === modelId && a.accessoryId === accessoryId
-    );
-    const updated = exists
-      ? current.filter(
-          (a) => !(a.modelId === modelId && a.accessoryId === accessoryId)
-        )
-      : [...current, { modelId, accessoryId, name, price }];
-    updateState({ selectedAccessories: updated });
-  }
-
-  function getScoreBadgeClass(score: number) {
-    if (score > 60) return 'bg-green-100 text-green-800 border-green-300 rounded-lg';
-    if (score >= 30) return 'bg-yellow-100 text-yellow-800 border-yellow-300 rounded-lg';
-    return 'bg-gray-100 text-gray-800 border-gray-300 rounded-lg';
-  }
-
-  function getRoiInput(modelId: string) {
-    return roiInputs[modelId] ?? { sellingPrice: 5, unitsPerDay: 10 };
-  }
-
-  function updateRoiInput(
-    modelId: string,
-    field: 'sellingPrice' | 'unitsPerDay',
-    value: number
-  ) {
-    setRoiInputs((prev) => ({
-      ...prev,
-      [modelId]: { ...getRoiInput(modelId), [field]: value },
-    }));
-  }
+  const data = Array.from({ length: 24 }, (_, i) => {
+    const month = i + 1;
+    return {
+      month,
+      revenue: Math.round(month * monthlyRevenue),
+      cost: Math.round(investment + month * monthlyCost),
+    };
+  });
 
   return (
-    <div className="space-y-8">
-      {/* Product Cards */}
+    <div className="mt-6 p-4 bg-card rounded-lg" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
+      <div className="flex items-center gap-2 mb-4">
+        <TrendingUp className="h-5 w-5 text-primary" />
+        <h4 className="font-medium">{t('roi_title') || 'ROI Estimado'}</h4>
+      </div>
+
+      <ResponsiveContainer width="100%" height={220}>
+        <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+          <XAxis dataKey="month" tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}m`} />
+          <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
+          <Tooltip formatter={(value: number) => formatPrice(value)} labelFormatter={(l) => `Mes ${l}`} />
+          <Line type="monotone" dataKey="revenue" stroke="#e8522a" strokeWidth={2} dot={false} name="Ingresos acumulados" />
+          <Line type="monotone" dataKey="cost" stroke="#1a3a5c" strokeWidth={2} dot={false} name="Inversión total" />
+          {breakEvenMonth <= 24 && (
+            <ReferenceLine x={breakEvenMonth} stroke="#e8522a" strokeDasharray="5 5" label={{ value: `Mes ${breakEvenMonth}`, position: 'top', fill: '#e8522a', fontSize: 11 }} />
+          )}
+        </LineChart>
+      </ResponsiveContainer>
+
+      <div className="grid grid-cols-3 gap-3 mt-4">
+        <div className="text-center p-3 bg-[#f9f7f4] rounded-lg">
+          <p className="text-xs text-muted-foreground mb-1">{t('roi_investment') || 'Inversión inicial'}</p>
+          <p className="text-price font-semibold">{formatPrice(investment)}</p>
+        </div>
+        <div className="text-center p-3 bg-[#f9f7f4] rounded-lg">
+          <p className="text-xs text-muted-foreground mb-1">{t('roi_monthlyRevenue') || 'Ingreso mensual'}</p>
+          <p className="text-price font-semibold">{formatPrice(monthlyRevenue)}</p>
+        </div>
+        <div className="text-center p-3 bg-[#fdf0eb] rounded-lg">
+          <p className="text-xs text-muted-foreground mb-1">{t('roi_breakeven') || 'Retorno en'}</p>
+          <p className="text-price font-semibold">{breakEvenMonth <= 24 ? `${breakEvenMonth} meses` : '+24 meses'}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Comparison Modal
+function ComparisonModal({ modelIds, onClose, onAdd, selectedProducts, t }: {
+  modelIds: string[];
+  onClose: () => void;
+  onAdd: (id: string) => void;
+  selectedProducts: string[];
+  t: (key: string) => string;
+}) {
+  const models = modelIds.map(id => printerModels.find(m => m.id === id)).filter(Boolean) as typeof printerModels;
+  const specKeys = ['printArea', 'maxHeight', 'resolution', 'inkType', 'heads', 'headType'] as const;
+  const specLabels: Record<string, string> = {
+    printArea: 'Área de impresión',
+    maxHeight: 'Altura máxima',
+    resolution: 'Resolución',
+    inkType: 'Tipo de tinta',
+    heads: 'Cabezales',
+    headType: 'Tipo cabezal',
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-card rounded-xl max-w-4xl w-full max-h-[80vh] overflow-auto p-6"
+        style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-display text-2xl">{t('compare_title') || 'Comparativa'}</h3>
+          <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr>
+                <th className="text-left p-3 text-xs uppercase tracking-wider text-muted-foreground" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>Spec</th>
+                {models.map(m => (
+                  <th key={m.id} className="text-center p-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', minWidth: 180 }}>
+                    {m.image && <img src={m.image} alt={m.name} className="w-20 h-20 object-contain mx-auto mb-2 rounded" />}
+                    <p className="font-semibold text-sm">{m.name}</p>
+                    <p className="text-xs text-muted-foreground">{m.brand}</p>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                <td className="p-3 text-sm font-medium">Precio</td>
+                {models.map(m => (
+                  <td key={m.id} className="p-3 text-center text-price font-semibold">{m.price || '-'}</td>
+                ))}
+              </tr>
+              {specKeys.map(key => (
+                <tr key={key} style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                  <td className="p-3 text-sm font-medium">{specLabels[key] || key}</td>
+                  {models.map(m => (
+                    <td key={m.id} className="p-3 text-center text-sm">{m.specs[key] || '-'}</td>
+                  ))}
+                </tr>
+              ))}
+              <tr>
+                <td className="p-3"></td>
+                {models.map(m => (
+                  <td key={m.id} className="p-3 text-center">
+                    <Button
+                      size="sm"
+                      onClick={() => { onAdd(m.id); onClose(); }}
+                      disabled={selectedProducts.includes(m.id)}
+                      className={selectedProducts.includes(m.id)
+                        ? 'bg-muted text-muted-foreground'
+                        : 'btn-primary-3d bg-primary text-white hover:brightness-[0.92]'
+                      }
+                    >
+                      {selectedProducts.includes(m.id) ? 'Añadido' : 'Añadir al presupuesto'}
+                    </Button>
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+export function StepRecommendations({ state, updateState, t }: StepProps) {
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
+
+  // Filter and rank recommendations based on multi-selection state
+  const recommendations = useMemo(() => {
+    let models = printerModels.filter(m => m.category !== 'discontinued');
+
+    // Filter by production type
+    if (state.productionType.includes('uvPrinting')) {
+      // Keep UV printers
+    }
+    if (state.productionType.includes('pvcCards')) {
+      // Include card printers like artisjet-proud
+    }
+
+    // Score models by how many wizard selections they match
+    const scored = models.map(model => {
+      let score = 0;
+      const price = parsePrice(model.price);
+
+      // Match by size
+      if (state.uvMaxSize.length > 0) {
+        const area = model.specs.printArea;
+        if (state.uvMaxSize.includes('a4') && area.includes('20')) score += 2;
+        if (state.uvMaxSize.includes('a3') && (area.includes('30') || area.includes('35') || area.includes('36'))) score += 2;
+        if (state.uvMaxSize.includes('60x90') && (area.includes('60') || area.includes('51'))) score += 2;
+        if (state.uvMaxSize.includes('100x160') && (area.includes('100') || area.includes('160') || area.includes('180') || area.includes('250'))) score += 2;
+      }
+
+      // Match by investment range
+      if (state.investmentRange === 'under5k' && price && price < 5000) score += 3;
+      if (state.investmentRange === '5to15k' && price && price >= 5000 && price <= 15000) score += 3;
+      if (state.investmentRange === '15to40k' && price && price > 15000 && price <= 40000) score += 3;
+      if (state.investmentRange === 'over40k' && price && price > 40000) score += 3;
+
+      // Card specialist
+      if (state.productionType.includes('pvcCards') && model.id === 'artisjet-proud') score += 5;
+
+      // Vending for retail
+      if (state.businessProfile.includes('personalization') && model.category === 'pimpam') score += 3;
+      if (state.businessProfile.includes('ecommerce') && model.category === 'pimpam') score += 3;
+
+      return { model, score };
+    });
+
+    return scored
+      .filter(s => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(s => s.model);
+  }, [state]);
+
+  const displayModels = recommendations.length > 0 ? recommendations : printerModels.filter(m => m.category !== 'discontinued');
+
+  const toggleProduct = (modelId: string) => {
+    if (state.selectedProducts.includes(modelId)) {
+      updateState({
+        selectedProducts: state.selectedProducts.filter(id => id !== modelId),
+        selectedAccessories: state.selectedAccessories.filter(a => a.modelId !== modelId),
+      });
+    } else {
+      updateState({ selectedProducts: [...state.selectedProducts, modelId] });
+    }
+  };
+
+  const toggleCompare = (modelId: string) => {
+    setCompareIds(prev =>
+      prev.includes(modelId)
+        ? prev.filter(id => id !== modelId)
+        : prev.length < 3 ? [...prev, modelId] : prev
+    );
+  };
+
+  // ROI data from first selected model
+  const firstSelected = state.selectedProducts.length > 0
+    ? printerModels.find(m => m.id === state.selectedProducts[0])
+    : null;
+  const roiInvestment = firstSelected ? (parsePrice(firstSelected.price) || 0) : 0;
+
+  return (
+    <div>
+      <div className="mb-6">
+        <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">PASO 05</p>
+        <h3 className="text-display text-[32px] leading-tight mb-2">{t('rec_title') || 'Recomendaciones'}</h3>
+        <p className="text-base text-muted-foreground max-w-[520px]">{t('rec_subtitle') || 'Basándonos en tus necesidades, te recomendamos estos modelos.'}</p>
+      </div>
+
+      {recommendations.length > 0 && (
+        <p className="text-sm text-muted-foreground mb-4">
+          {recommendations.length} {t('models') || 'modelos'} {t('rec_matched') || 'compatibles con tu selección'}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {recommendations.map((rec) => {
-          const isSelected = state.selectedProducts.includes(rec.model.id);
-          const price = parsePrice(rec.model.price);
-          const modelAccessories = rec.model.accessories;
+        {displayModels.map((model, index) => {
+          const isSelected = state.selectedProducts.includes(model.id);
+          const isComparing = compareIds.includes(model.id);
 
           return (
             <motion.div
-              key={rec.model.id}
-              whileHover={{ y: -2 }}
-              className={`rounded-lg bg-card overflow-hidden transition-all duration-150 ${
-                isSelected
-                  ? 'border-2 border-primary bg-[#fdf0eb]/30'
-                  : 'border hover:border-[rgba(0,0,0,0.16)]'
-              }`}
-              style={!isSelected ? { borderColor: 'rgba(0,0,0,0.08)' } : undefined}
+              key={model.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              className={`
+                relative rounded-lg p-4 transition-all duration-200
+                ${isSelected
+                  ? 'bg-[#fdf0eb] border-2 border-primary shadow-[0_8px_20px_rgba(232,82,42,0.2)]'
+                  : 'bg-card border border-[rgba(0,0,0,0.08)] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]'
+                }
+              `}
             >
-              {/* Card Header */}
-              <div className="flex gap-4 p-4">
-                {rec.model.image && (
+              {/* Compare checkbox */}
+              <label className="absolute top-3 left-3 flex items-center gap-1.5 cursor-pointer z-10">
+                <input
+                  type="checkbox"
+                  checked={isComparing}
+                  onChange={() => toggleCompare(model.id)}
+                  className="sr-only"
+                />
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${isComparing ? 'bg-primary border-primary' : 'border-gray-300'}`}>
+                  {isComparing && <Check className="h-2.5 w-2.5 text-white" />}
+                </div>
+                <span className="text-xs text-muted-foreground">{t('compare') || 'Comparar'}</span>
+              </label>
+
+              <div className="flex gap-4 mt-6">
+                {model.image && (
                   <img
-                    src={rec.model.image}
-                    alt={rec.model.name}
-                    className="w-24 h-24 object-contain rounded bg-muted flex-shrink-0"
+                    src={model.image}
+                    alt={model.name}
+                    className="w-24 h-24 object-contain rounded bg-white flex-shrink-0"
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-semibold truncate">{rec.model.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {rec.model.brand}
-                      </p>
+                  <p className="text-xs text-muted-foreground">{model.brand}</p>
+                  <p className="font-semibold truncate">{model.name}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {model.specs.printArea} · {model.specs.headType}
+                  </p>
+                  {model.price && (
+                    <div className="mt-2">
+                      <AnimatedPrice price={model.price} delay={index * 80} />
                     </div>
-                    <Badge
-                      variant="outline"
-                      className={`flex-shrink-0 ${getScoreBadgeClass(rec.matchScore)}`}
-                    >
-                      {rec.matchScore}%
-                    </Badge>
-                  </div>
-
-                  {/* Match Reasons */}
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {rec.matchReasons.map((reason) => (
-                      <span
-                        key={reason}
-                        className="inline-block text-xs bg-accent text-primary px-2 py-0.5 rounded-full"
-                      >
-                        {t(reason)}
-                      </span>
-                    ))}
-                  </div>
+                  )}
                 </div>
               </div>
 
-              {/* Price & Cost */}
-              <div className="px-4 pb-2">
-                {rec.model.price && (
-                  <div>
-                    <p className="text-price text-xl">{rec.model.price}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {t('rec_orientativePrice')}
-                    </p>
-                  </div>
-                )}
-                {rec.costPerPrint != null && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t('rec_costPerPrint')}: ~{formatPrice(rec.costPerPrint)}
-                  </p>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 px-4 pb-4">
-                <Button
-                  size="sm"
-                  className={`flex-1 rounded-lg ${
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => toggleProduct(model.id)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
                     isSelected
-                      ? 'bg-primary text-white hover:brightness-[0.92]'
-                      : 'border-2 border-primary text-primary bg-transparent hover:bg-primary/5'
+                      ? 'bg-primary text-white btn-primary-3d'
+                      : 'border-2 border-primary text-primary btn-secondary-3d'
                   }`}
-                  onClick={() => toggleProduct(rec.model.id)}
                 >
-                  <ShoppingCart className="h-4 w-4 mr-1" />
-                  {isSelected ? t('rec_removeFromQuote') : t('rec_addToQuote')}
-                </Button>
-                <Button
-                  size="sm"
-                  className="rounded-lg border border-[rgba(0,0,0,0.08)] text-muted-foreground bg-transparent hover:border-[rgba(0,0,0,0.16)] hover:bg-transparent"
-                  onClick={() => setSpecsModelId(rec.model.id)}
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  {t('rec_viewSpecs')}
-                </Button>
+                  {isSelected ? (
+                    <><Minus className="h-4 w-4" />{t('rec_remove') || 'Quitar'}</>
+                  ) : (
+                    <><Plus className="h-4 w-4" />{t('rec_add') || 'Añadir'}</>
+                  )}
+                </button>
               </div>
-
-              {/* Accessories (collapsible, only when selected) */}
-              {isSelected && modelAccessories.length > 0 && (
-                <Collapsible
-                  open={accessoriesOpen[rec.model.id] ?? false}
-                  onOpenChange={(open) =>
-                    setAccessoriesOpen((prev) => ({
-                      ...prev,
-                      [rec.model.id]: open,
-                    }))
-                  }
-                >
-                  <CollapsibleTrigger asChild>
-                    <button className="flex items-center justify-between w-full px-4 py-2 bg-[#f0ede7] text-sm hover:brightness-[0.97] transition-colors">
-                      <span>{t('rec_accessories')}</span>
-                      {accessoriesOpen[rec.model.id] ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="px-4 py-3 space-y-2 bg-[#f9f7f4]">
-                      {modelAccessories.map((acc) => {
-                        const isAccSelected = state.selectedAccessories.some(
-                          (a) =>
-                            a.modelId === rec.model.id &&
-                            a.accessoryId === acc.id
-                        );
-                        return (
-                          <label
-                            key={acc.id}
-                            className="flex items-start gap-3 cursor-pointer"
-                          >
-                            <Checkbox
-                              checked={isAccSelected}
-                              onCheckedChange={() =>
-                                toggleAccessory(
-                                  rec.model.id,
-                                  acc.id,
-                                  acc.name,
-                                  acc.price
-                                )
-                              }
-                              className="mt-0.5"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium">{acc.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {acc.description}
-                              </p>
-                              {acc.price && (
-                                <p className="text-xs font-medium mt-0.5">
-                                  {acc.price}
-                                </p>
-                              )}
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              )}
             </motion.div>
           );
         })}
       </div>
 
-      {recommendations.length === 0 && (
-        <p className="text-center text-muted-foreground py-8">
-          {t('rec_noResults')}
-        </p>
+      {/* ROI Chart for first selected product */}
+      {state.selectedProducts.length > 0 && roiInvestment > 0 && (
+        <ROIChart
+          investment={roiInvestment}
+          revenuePerUnit={5}
+          costPerUnit={0.4}
+          unitsPerDay={state.uvProductionVolume || 10}
+          t={t}
+        />
       )}
 
-      {/* ROI Calculator (collapsible) */}
-      {selectedModels.length > 0 && (
-        <Collapsible open={roiOpen} onOpenChange={setRoiOpen}>
-          <CollapsibleTrigger asChild>
-            <button
-              className="flex items-center gap-2 w-full rounded-lg px-4 py-3 text-left transition-colors hover:bg-muted/50"
-              style={{ border: '1px solid rgba(0,0,0,0.08)' }}
-            >
-              <Calculator className="h-5 w-5" />
-              <span className="font-semibold flex-1">{t('rec_roiCalculator')}</span>
-              {roiOpen ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div
-              className="rounded-b-lg p-4 space-y-6 border border-t-0"
-              style={{ borderColor: 'rgba(0,0,0,0.08)' }}
-            >
-              {selectedModels.map((rec) => {
-                const price = parsePrice(rec.model.price) ?? 0;
-                const costPerPrint = rec.costPerPrint ?? 0;
-                const input = getRoiInput(rec.model.id);
-                const roi = calculateROI(
-                  price,
-                  costPerPrint,
-                  input.sellingPrice,
-                  input.unitsPerDay
-                );
-
-                return (
-                  <div key={rec.model.id} className="space-y-3">
-                    <p className="font-medium">{rec.model.name}</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor={`roi-price-${rec.model.id}`}>
-                          {t('rec_sellingPrice')}
-                        </Label>
-                        <Input
-                          id={`roi-price-${rec.model.id}`}
-                          type="number"
-                          min={0}
-                          step={0.5}
-                          value={input.sellingPrice}
-                          onChange={(e) =>
-                            updateRoiInput(
-                              rec.model.id,
-                              'sellingPrice',
-                              parseFloat(e.target.value) || 0
-                            )
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor={`roi-units-${rec.model.id}`}>
-                          {t('rec_unitsPerDay')}
-                        </Label>
-                        <Input
-                          id={`roi-units-${rec.model.id}`}
-                          type="number"
-                          min={0}
-                          value={input.unitsPerDay}
-                          onChange={(e) =>
-                            updateRoiInput(
-                              rec.model.id,
-                              'unitsPerDay',
-                              parseInt(e.target.value) || 0
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3 text-center">
-                      <div className="bg-[#fdf0eb] rounded-lg p-3">
-                        <p className="text-xs text-muted-foreground">
-                          {t('rec_monthsToRecover')}
-                        </p>
-                        <p className="text-lg font-bold">
-                          {roi.monthsToRecover === Infinity
-                            ? '--'
-                            : roi.monthsToRecover}
-                        </p>
-                      </div>
-                      <div className="bg-[#fdf0eb] rounded-lg p-3">
-                        <p className="text-xs text-muted-foreground">
-                          {t('rec_dailyProfit')}
-                        </p>
-                        <p className="text-lg font-bold">
-                          {formatPrice(Math.round(roi.dailyProfit * 100) / 100)}
-                        </p>
-                      </div>
-                      <div className="bg-[#fdf0eb] rounded-lg p-3">
-                        <p className="text-xs text-muted-foreground">
-                          {t('rec_yearlyProfit')}
-                        </p>
-                        <p className="text-lg font-bold">
-                          {formatPrice(Math.round(roi.yearlyProfit))}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      )}
-
-      {/* Compare Button */}
-      {selectedModels.length >= 2 && selectedModels.length <= 3 && (
-        <div className="flex justify-center">
-          <Button
-            className="border-2 border-primary text-primary bg-transparent rounded-lg hover:bg-primary/5"
-            onClick={() => setCompareOpen(true)}
+      {/* Sticky comparison bar */}
+      <AnimatePresence>
+        {compareIds.length >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            className="sticky bottom-0 left-0 right-0 bg-card rounded-t-xl p-4 flex items-center justify-between shadow-lg z-20"
+            style={{ border: '1px solid rgba(0,0,0,0.08)' }}
           >
-            <Columns3 className="h-4 w-4 mr-2" />
-            {t('rec_compareModels')}
-          </Button>
-        </div>
-      )}
-
-      {/* Specs Modal */}
-      <Dialog
-        open={specsModelId !== null}
-        onOpenChange={(open) => !open && setSpecsModelId(null)}
-      >
-        <DialogContent className="max-w-lg rounded-xl">
-          <DialogHeader>
-            <DialogTitle>{specsModel?.fullName ?? ''}</DialogTitle>
-          </DialogHeader>
-          {specsModel && (
-            <div className="space-y-3">
-              {specsModel.image && (
-                <img
-                  src={specsModel.image}
-                  alt={specsModel.name}
-                  className="w-full h-48 object-contain bg-muted rounded-lg"
-                />
-              )}
-              <table className="w-full text-sm">
-                <tbody>
-                  {(
-                    [
-                      ['price', specsModel.price],
-                      ['printArea', specsModel.specs.printArea],
-                      ['maxHeight', specsModel.specs.maxHeight],
-                      ['resolution', specsModel.specs.resolution],
-                      ['headType', specsModel.specs.headType],
-                      ['inkType', specsModel.specs.inkType],
-                      ['heads', specsModel.specs.heads],
-                      ['weight', specsModel.specs.weight],
-                      ['dimensions', specsModel.specs.dimensions],
-                    ] as [string, string | undefined][]
-                  ).map(
-                    ([labelKey, value]) =>
-                      value && (
-                        <tr key={labelKey} className="border-b last:border-0">
-                          <td className="py-2 font-medium text-muted-foreground pr-4">
-                            {t(labelKey)}
-                          </td>
-                          <td className="py-2">{value}</td>
-                        </tr>
-                      )
-                  )}
-                </tbody>
-              </table>
+            <div className="flex items-center gap-2">
+              <GitCompareArrows className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium">
+                {t('comparing') || 'Comparando'} {compareIds.length} {t('models') || 'modelos'}
+              </span>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCompareIds([])}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5"
+              >
+                {t('cancel') || 'Cancelar'}
+              </button>
+              <button
+                onClick={() => setShowComparison(true)}
+                className="btn-primary-3d bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium"
+              >
+                {t('compare_view') || 'Ver comparativa'}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Comparator Dialog */}
-      <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-xl">
-          <DialogHeader>
-            <DialogTitle>{t('rec_comparison')}</DialogTitle>
-          </DialogHeader>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2 text-left pr-4"></th>
-                  {selectedModels.map((rec) => (
-                    <th key={rec.model.id} className="py-2 text-left px-2 min-w-[140px]">
-                      {rec.model.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(
-                  [
-                    ['price', (m: Recommendation) => m.model.price ?? '--'],
-                    ['printArea', (m: Recommendation) => m.model.specs.printArea],
-                    ['maxHeight', (m: Recommendation) => m.model.specs.maxHeight],
-                    ['resolution', (m: Recommendation) => m.model.specs.resolution],
-                    ['headType', (m: Recommendation) => m.model.specs.headType],
-                    ['inkType', (m: Recommendation) => m.model.specs.inkType],
-                    ['weight', (m: Recommendation) => m.model.specs.weight],
-                    ['dimensions', (m: Recommendation) => m.model.specs.dimensions],
-                  ] as [string, (m: Recommendation) => string][]
-                ).map(([labelKey, getValue]) => (
-                  <tr key={labelKey} className="border-b last:border-0">
-                    <td className="py-2 font-medium text-muted-foreground pr-4 whitespace-nowrap">
-                      {t(labelKey)}
-                    </td>
-                    {selectedModels.map((rec) => (
-                      <td key={rec.model.id} className="py-2 px-2">
-                        {getValue(rec)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Comparison Modal */}
+      <AnimatePresence>
+        {showComparison && (
+          <ComparisonModal
+            modelIds={compareIds}
+            onClose={() => setShowComparison(false)}
+            onAdd={(id) => {
+              if (!state.selectedProducts.includes(id)) {
+                updateState({ selectedProducts: [...state.selectedProducts, id] });
+              }
+            }}
+            selectedProducts={state.selectedProducts}
+            t={t}
+          />
+        )}
+      </AnimatePresence>
+
+      <p className="text-xs text-hint mt-6">{t('rec_disclaimer') || 'Los precios son orientativos y pueden variar.'}</p>
     </div>
   );
 }

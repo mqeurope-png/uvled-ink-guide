@@ -132,12 +132,13 @@
   .selection-card {
     @apply bg-card border rounded-lg transition-all duration-200 cursor-pointer;
     border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
   .selection-card:hover {
     border-color: rgba(0,0,0,0.16);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    transform: translateY(-3px);
   }
 
   .selection-card:active {
@@ -148,5 +149,99 @@
     border-color: hsl(var(--primary));
     border-width: 2px;
     background-color: hsl(var(--accent-soft));
+    box-shadow: 0 8px 20px rgba(232,82,42,0.2);
+    transform: translateY(-3px);
   }
+}
+
+/* Premium 3D button styles */
+.btn-primary-3d {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 6px rgba(232,82,42,0.4), 0 1px 3px rgba(0,0,0,0.2);
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-primary-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 12px rgba(232,82,42,0.45), 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.btn-primary-3d:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 2px rgba(232,82,42,0.3);
+  border-bottom-width: 1px;
+}
+
+.btn-secondary-3d {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-3d:hover {
+  transform: translateY(-2px);
+  background-color: hsl(var(--accent-soft));
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
+
+.btn-secondary-3d:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* Icon button raised */
+.btn-icon-raised {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.btn-icon-raised:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Progress step glow */
+.step-completed-glow {
+  box-shadow: 0 0 8px rgba(232,82,42,0.4);
+}
+
+/* Pulsing ring for current step */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(232,82,42,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(232,82,42,0); }
+  100% { box-shadow: 0 0 0 0 rgba(232,82,42,0); }
+}
+
+.step-current-pulse {
+  animation: pulse-ring 2s infinite;
+}
+
+/* Category label with accent line */
+.category-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: hsl(var(--muted-foreground));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-label::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: hsl(var(--primary));
+  border-radius: 1px;
+}
+
+/* Summary pulse animation */
+@keyframes summary-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.summary-pulse {
+  animation: summary-pulse 0.3s ease;
 }

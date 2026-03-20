@@ -94,14 +94,14 @@ export type HowFoundUs = typeof HOW_FOUND_US_OPTIONS[number];
 
 export interface WizardState {
   // Step 1
-  businessProfile: BusinessProfile | '';
+  businessProfile: BusinessProfile[];
 
   // Step 2
-  productionType: ProductionType | '';
+  productionType: ProductionType[];
 
   // Step 3 - UV
-  uvMaxSize: UvMaxSize | '';
-  uvSurfaceType: UvSurfaceType | '';
+  uvMaxSize: UvMaxSize[];
+  uvSurfaceType: UvSurfaceType[];
   uvMaterials: UvMaterial[];
   uvSpecialEffects: UvSpecialEffect[];
   uvProductionVolume: number; // units per day
@@ -154,10 +154,10 @@ export interface WizardState {
 }
 
 export const initialWizardState: WizardState = {
-  businessProfile: '',
-  productionType: '',
-  uvMaxSize: '',
-  uvSurfaceType: '',
+  businessProfile: [],
+  productionType: [],
+  uvMaxSize: [],
+  uvSurfaceType: [],
   uvMaterials: [],
   uvSpecialEffects: [],
   uvProductionVolume: 10,
@@ -197,8 +197,8 @@ export const initialWizardState: WizardState = {
 
 export function isStepValid(step: WizardStep, state: WizardState): boolean {
   switch (step) {
-    case 1: return state.businessProfile !== '';
-    case 2: return state.productionType !== '';
+    case 1: return state.businessProfile.length > 0;
+    case 2: return state.productionType.length > 0;
     case 3: return isStep3Valid(state);
     case 4: return state.decisionTimeline !== '' && state.investmentRange !== '' && state.priorities.length > 0;
     case 5: return state.selectedProducts.length > 0;
@@ -214,18 +214,25 @@ export function isStepValid(step: WizardStep, state: WizardState): boolean {
 }
 
 function isStep3Valid(state: WizardState): boolean {
-  switch (state.productionType) {
-    case 'uvPrinting':
-      return state.uvMaxSize !== '' && state.uvSurfaceType !== '' && state.uvMaterials.length > 0;
-    case 'textileDtgDtf':
-      return state.textileMethod !== '' && state.textilePrintSize !== '';
-    case 'laserCutting':
-      return state.laserWorkType !== '' && state.laserMaterial !== '';
-    case 'packaging':
-      return state.packagingContainerType !== '' && state.packagingMaterial !== '';
-    case 'pvcCards':
-      return state.cardMaterial !== '' && state.cardFormat !== '';
-    default:
-      return false;
+  // Valid if any selected production type has valid config
+  for (const pt of state.productionType) {
+    switch (pt) {
+      case 'uvPrinting':
+        if (state.uvMaxSize.length > 0 && state.uvSurfaceType.length > 0 && state.uvMaterials.length > 0) return true;
+        break;
+      case 'textileDtgDtf':
+        if (state.textileMethod !== '' && state.textilePrintSize !== '') return true;
+        break;
+      case 'laserCutting':
+        if (state.laserWorkType !== '' && state.laserMaterial !== '') return true;
+        break;
+      case 'packaging':
+        if (state.packagingContainerType !== '' && state.packagingMaterial !== '') return true;
+        break;
+      case 'pvcCards':
+        if (state.cardMaterial !== '' && state.cardFormat !== '') return true;
+        break;
+    }
   }
+  return false;
 }

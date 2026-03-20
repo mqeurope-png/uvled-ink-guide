@@ -13,6 +13,7 @@ import ModelSpecs from "./pages/ModelSpecs";
 import ModelAccessories from "./pages/ModelAccessories";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => {
               <Route path="/model/:modelId/specs" element={<ModelSpecs />} />
               <Route path="/model/:modelId/accessories" element={<ModelAccessories />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/demo" element={<Demo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

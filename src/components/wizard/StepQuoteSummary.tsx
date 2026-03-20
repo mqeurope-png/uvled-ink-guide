@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Download, Send, Video, X, Plus } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { WizardState } from '@/lib/wizardTypes';
 import { printerModels } from '@/lib/printerData';
 import { parsePrice, formatPrice } from '@/lib/quoteUtils';
@@ -13,20 +13,11 @@ interface StepProps {
   t: (key: string) => string;
 }
 
-interface StepQuoteSummaryProps extends StepProps {
-  onExportPDF: () => void;
-  onSendEmail: () => void;
-  onRequestDemo: () => void;
-}
-
 export function StepQuoteSummary({
   state,
   updateState,
   t,
-  onExportPDF,
-  onSendEmail,
-  onRequestDemo,
-}: StepQuoteSummaryProps) {
+}: StepProps) {
   const selectedModelData = useMemo(
     () =>
       state.selectedProducts
@@ -93,6 +84,12 @@ export function StepQuoteSummary({
 
   return (
     <div className="space-y-6">
+      <div className="mb-6">
+        <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">PASO 06</p>
+        <h3 className="text-display text-[32px] leading-tight mb-2">{t('sum_title') || 'Resumen del presupuesto'}</h3>
+        <p className="text-base text-muted-foreground max-w-[520px]">{t('sum_subtitle') || 'Revisa tu selección antes de continuar.'}</p>
+      </div>
+
       {/* 1. Selected Products */}
       <section>
         <h3 className="text-lg font-medium mb-3">{t('sum_selectedProducts')}</h3>
@@ -240,33 +237,6 @@ export function StepQuoteSummary({
           className="mt-2 rounded-lg focus:border-primary focus:ring-primary"
           rows={4}
         />
-      </section>
-
-      <div className="h-px bg-[rgba(0,0,0,0.08)] my-6" />
-
-      {/* 5. Action Buttons */}
-      <section className="flex flex-col sm:flex-row gap-3">
-        <Button
-          className="flex-1 border-2 border-primary text-primary bg-transparent rounded-lg hover:bg-primary/5"
-          onClick={onExportPDF}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          {t('sum_downloadPDF')}
-        </Button>
-        <Button
-          className="flex-1 bg-primary text-white rounded-lg hover:brightness-[0.92]"
-          onClick={onSendEmail}
-        >
-          <Send className="h-4 w-4 mr-2" />
-          {t('sum_sendToBoprint')}
-        </Button>
-        <Button
-          className="flex-1 border-2 border-primary text-primary bg-transparent rounded-lg hover:bg-primary/5"
-          onClick={onRequestDemo}
-        >
-          <Video className="h-4 w-4 mr-2" />
-          {t('sum_requestDemo')}
-        </Button>
       </section>
     </div>
   );

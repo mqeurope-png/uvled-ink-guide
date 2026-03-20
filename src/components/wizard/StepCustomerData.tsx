@@ -1,4 +1,4 @@
-import { User, Mail, Phone, MessageCircle, Check } from 'lucide-react';
+import { User, Mail, Phone, MessageCircle, Check, Download, Send, Video } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { WizardState, HOW_FOUND_US_OPTIONS, ContactMethod } from '@/lib/wizardTypes';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,9 @@ interface StepProps {
   state: WizardState;
   updateState: (updates: Partial<WizardState>) => void;
   t: (key: string) => string;
+  onExportPDF?: () => void;
+  onSendEmail?: () => void;
+  onRequestDemo?: () => void;
 }
 
 const CONTACT_OPTIONS: { value: ContactMethod; icon: typeof Mail }[] = [
@@ -24,11 +27,12 @@ const CONTACT_OPTIONS: { value: ContactMethod; icon: typeof Mail }[] = [
   { value: 'whatsapp', icon: MessageCircle },
 ];
 
-export function StepCustomerData({ state, updateState, t }: StepProps) {
+export function StepCustomerData({ state, updateState, t, onExportPDF, onSendEmail, onRequestDemo }: StepProps) {
   return (
     <div className="max-w-xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col items-center text-center">
+        <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">PASO 07</p>
         <div className="h-14 w-14 rounded-full bg-accent text-primary flex items-center justify-center mb-3">
           <User className="h-7 w-7" />
         </div>
@@ -205,6 +209,47 @@ export function StepCustomerData({ state, updateState, t }: StepProps) {
           <span className="text-sm">{t('cd_newsletter')}</span>
         </label>
       </div>
+
+      {/* Action buttons - shown when required fields are filled */}
+      {state.customerName.trim() && state.customerEmail.trim() && state.privacyAccepted && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="pt-6"
+          style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}
+        >
+          <p className="text-sm font-medium mb-3">{t('cd_actions') || 'Acciones disponibles'}</p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            {onExportPDF && (
+              <button
+                onClick={onExportPDF}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 border-primary text-primary font-medium text-sm btn-secondary-3d"
+              >
+                <Download className="h-4 w-4" />
+                {t('sum_downloadPDF')}
+              </button>
+            )}
+            {onSendEmail && (
+              <button
+                onClick={onSendEmail}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-white font-medium text-sm btn-primary-3d"
+              >
+                <Send className="h-4 w-4" />
+                {t('sum_sendToBoprint')}
+              </button>
+            )}
+            {onRequestDemo && (
+              <button
+                onClick={onRequestDemo}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 border-primary text-primary font-medium text-sm btn-secondary-3d"
+              >
+                <Video className="h-4 w-4" />
+                {t('sum_requestDemo')}
+              </button>
+            )}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

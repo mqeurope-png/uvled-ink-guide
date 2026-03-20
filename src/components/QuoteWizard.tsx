@@ -37,6 +37,7 @@ interface QuoteWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialModelId?: string;
+  demoMode?: boolean;
 }
 
 const stepVariants = {
@@ -59,7 +60,7 @@ const stepTransition = {
   ease: [0.4, 0, 0.2, 1],
 };
 
-export function QuoteWizard({ open, onOpenChange, initialModelId }: QuoteWizardProps) {
+export function QuoteWizard({ open, onOpenChange, initialModelId, demoMode }: QuoteWizardProps) {
   const { t, language } = useLanguage();
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [state, setState] = useState<WizardState>(initialWizardState);
@@ -72,16 +73,24 @@ export function QuoteWizard({ open, onOpenChange, initialModelId }: QuoteWizardP
 
   useEffect(() => {
     if (open) {
-      if (initialModelId) {
+      if (demoMode) {
+        try {
+          const demoData = JSON.parse(localStorage.getItem('uv-led-wizard-demo') || '');
+          if (demoData?.state) {
+            setState({ ...initialWizardState, ...demoData.state });
+            setCurrentStep(demoData.currentStep || 5);
+          }
+        } catch { /* ignore */ }
+      } else if (initialModelId) {
         setState(prev => ({
           ...initialWizardState,
-          productionType: 'uvPrinting',
+          productionType: ['uvPrinting'],
           selectedProducts: [initialModelId],
         }));
         setCurrentStep(5);
       } else {
         const saved = loadAutoSavedWizard();
-        if (saved && saved.state.businessProfile) {
+        if (saved && saved.state.businessProfile?.length > 0) {
           setState(saved.state);
           setCurrentStep(saved.currentStep);
         } else {
@@ -97,7 +106,7 @@ export function QuoteWizard({ open, onOpenChange, initialModelId }: QuoteWizardP
   }, [open, initialModelId]);
 
   useEffect(() => {
-    if (open && state.businessProfile) {
+    if (open && state.businessProfile.length > 0) {
       autoSaveWizard(state, currentStep);
     }
   }, [state, currentStep, open]);
@@ -329,9 +338,9 @@ ${state.customerCountry ? `<div style="font-size: 12px; color: #6a6a65;">${state
 <td style="vertical-align: top; ${hasCustomer ? 'padding-left: 14px;' : ''}">
 <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 2.5px; color: #b0ada6; margin-bottom: 10px; font-weight: 600;">${t('tc_title')}</div>
 <div style="background: #f9f7f4; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 18px; font-size: 13px; color: #0f0f0d;">
-${state.productionType ? `<div>${t(`pr_${state.productionType}`)}</div>` : ''}
-${state.uvMaxSize ? `<div>${t('tc_uvMaxSize')}: ${state.uvMaxSize.toUpperCase()}</div>` : ''}
-${state.uvSurfaceType ? `<div>${t('tc_surfaceType')}: ${t(`tc_${state.uvSurfaceType}`)}</div>` : ''}
+${state.productionType.length > 0 ? `<div>${state.productionType.map(pt => t(`pr_${pt}`)).join(', ')}</div>` : ''}
+${state.uvMaxSize.length > 0 ? `<div>${t('tc_uvMaxSize')}: ${state.uvMaxSize.map(s => s.toUpperCase()).join(', ')}</div>` : ''}
+${state.uvSurfaceType.length > 0 ? `<div>${t('tc_surfaceType')}: ${state.uvSurfaceType.map(s => t(`tc_${s}`)).join(', ')}</div>` : ''}
 ${state.uvMaterials.length > 0 ? `<div>${t('tc_materials')}: ${state.uvMaterials.map(m => t(`tc_material_${m}`)).join(', ')}</div>` : ''}
 </div></td>
 </tr></table>
@@ -370,15 +379,15 @@ www.boprint.net &middot; manel@bomedia.net &middot; +34 682 62 70 56
       case 3: return <StepTechnicalConfig {...stepProps} />;
       case 4: return <StepExpectations {...stepProps} />;
       case 5: return <StepRecommendations {...stepProps} />;
-      case 6: return (
-        <StepQuoteSummary
+      case 6: return <StepQuoteSummary {...stepProps} />;
+      case 7: return (
+        <StepCustomerData
           {...stepProps}
           onExportPDF={handleExportPDF}
           onSendEmail={handleSendEmail}
           onRequestDemo={handleRequestDemo}
         />
       );
-      case 7: return <StepCustomerData {...stepProps} />;
       default: return null;
     }
   };
@@ -470,7 +479,7 @@ www.boprint.net &middot; manel@bomedia.net &middot; +34 682 62 70 56
               <button
                 onClick={handleBack}
                 disabled={currentStep === 1}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 border-primary text-primary font-medium text-sm hover:bg-primary hover:text-white transition-all disabled:opacity-30 disabled:border-muted disabled:text-muted-foreground disabled:hover:bg-transparent"
+                className="btn-secondary-3d flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 border-primary text-primary font-medium text-sm hover:bg-[#fdf0eb] transition-all disabled:opacity-30 disabled:border-muted disabled:text-muted-foreground disabled:hover:bg-transparent"
               >
                 <ArrowLeft className="h-4 w-4" />
                 {t('wizard_back')}
@@ -480,7 +489,7 @@ www.boprint.net &middot; manel@bomedia.net &middot; +34 682 62 70 56
                 <button
                   onClick={handleNext}
                   disabled={!isStepValid(currentStep, state)}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm hover:brightness-[0.92] transition-all disabled:opacity-40 disabled:hover:brightness-100"
+                  className="btn-primary-3d flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm transition-all disabled:opacity-40"
                 >
                   {t('wizard_next')}
                   <ArrowRight className="h-4 w-4" />
@@ -489,7 +498,7 @@ www.boprint.net &middot; manel@bomedia.net &middot; +34 682 62 70 56
                 <button
                   onClick={handleFinish}
                   disabled={!isStepValid(7, state)}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm hover:brightness-[0.92] transition-all disabled:opacity-40 disabled:hover:brightness-100"
+                  className="btn-primary-3d flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm transition-all disabled:opacity-40"
                 >
                   <Send className="h-4 w-4" />
                   {t('wizard_finish')}

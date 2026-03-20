@@ -75,27 +75,27 @@ function SummaryContent({ state, t }: { state: WizardState; t: (key: string) => 
   return (
     <div className="space-y-0">
       {/* Step 1: Business Profile */}
-      {state.businessProfile && (
+      {state.businessProfile.length > 0 && (
         <SummarySection
           icon={<Briefcase className="w-4 h-4" />}
           label={t('ws_step1')}
         >
-          <p>{t(`bp_${state.businessProfile}`)}</p>
+          <p>{state.businessProfile.map(bp => t('bp_' + bp)).join(', ')}</p>
         </SummarySection>
       )}
 
       {/* Step 2: Production Type */}
-      {state.productionType && (
+      {state.productionType.length > 0 && (
         <SummarySection
           icon={<Printer className="w-4 h-4" />}
           label={t('ws_step2')}
         >
-          <p>{t(`pr_${state.productionType}`)}</p>
+          <p>{state.productionType.map(pt => t('pr_' + pt)).join(', ')}</p>
         </SummarySection>
       )}
 
       {/* Step 3: Technical Config */}
-      {state.productionType && (
+      {state.productionType.length > 0 && (
         <Step3Summary state={state} t={t} />
       )}
 
@@ -186,19 +186,19 @@ function SummaryContent({ state, t }: { state: WizardState; t: (key: string) => 
 
 function Step3Summary({ state, t }: { state: WizardState; t: (key: string) => string }) {
   const hasUvData =
-    state.productionType === 'uvPrinting' &&
-    (state.uvMaxSize || state.uvSurfaceType || state.uvMaterials.length > 0);
+    state.productionType.includes('uvPrinting') &&
+    (state.uvMaxSize.length > 0 || state.uvSurfaceType.length > 0 || state.uvMaterials.length > 0);
   const hasTextileData =
-    state.productionType === 'textileDtgDtf' &&
+    state.productionType.includes('textileDtgDtf') &&
     (state.textileMethod || state.textilePrintSize);
   const hasLaserData =
-    state.productionType === 'laserCutting' &&
+    state.productionType.includes('laserCutting') &&
     (state.laserWorkType || state.laserMaterial);
   const hasPackagingData =
-    state.productionType === 'packaging' &&
+    state.productionType.includes('packaging') &&
     (state.packagingContainerType || state.packagingMaterial);
   const hasCardData =
-    state.productionType === 'pvcCards' &&
+    state.productionType.includes('pvcCards') &&
     (state.cardMaterial || state.cardFormat);
 
   if (!hasUvData && !hasTextileData && !hasLaserData && !hasPackagingData && !hasCardData) {
@@ -213,9 +213,9 @@ function Step3Summary({ state, t }: { state: WizardState; t: (key: string) => st
       <div className="space-y-1 text-xs">
         {hasUvData && (
           <>
-            {state.uvMaxSize && <p>{state.uvMaxSize.toUpperCase()}</p>}
-            {state.uvSurfaceType && (
-              <p className="text-muted-foreground">{t(`tc_${state.uvSurfaceType}`)}</p>
+            {state.uvMaxSize.length > 0 && <p>{state.uvMaxSize.map(s => s.toUpperCase()).join(', ')}</p>}
+            {state.uvSurfaceType.length > 0 && (
+              <p className="text-muted-foreground">{state.uvSurfaceType.map(s => t('tc_' + s)).join(', ')}</p>
             )}
             {state.uvMaterials.length > 0 && (
               <p className="text-muted-foreground">
@@ -267,8 +267,8 @@ export function WizardSidebar({ state, currentStep, t }: WizardSidebarProps) {
   const estimatedTotal = getEstimatedTotal(state.selectedProducts);
 
   const hasSummaryData =
-    state.businessProfile ||
-    state.productionType ||
+    state.businessProfile.length > 0 ||
+    state.productionType.length > 0 ||
     state.selectedProducts.length > 0 ||
     state.customerName;
 

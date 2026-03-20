@@ -132,8 +132,11 @@ function UvPrintingConfig({ state, updateState, t }: StepProps) {
         {UV_MAX_SIZES.map((size) => (
           <SelectionCard
             key={size}
-            selected={state.uvMaxSize === size}
-            onClick={() => updateState({ uvMaxSize: size })}
+            selected={state.uvMaxSize.includes(size)}
+            onClick={() => {
+              const current = state.uvMaxSize;
+              updateState({ uvMaxSize: current.includes(size) ? current.filter(s => s !== size) : [...current, size] });
+            }}
           >
             <span className="font-medium">{size.toUpperCase()}</span>
           </SelectionCard>
@@ -146,8 +149,11 @@ function UvPrintingConfig({ state, updateState, t }: StepProps) {
         {UV_SURFACE_TYPES.map((surface) => (
           <SelectionCard
             key={surface}
-            selected={state.uvSurfaceType === surface}
-            onClick={() => updateState({ uvSurfaceType: surface })}
+            selected={state.uvSurfaceType.includes(surface)}
+            onClick={() => {
+              const current = state.uvSurfaceType;
+              updateState({ uvSurfaceType: current.includes(surface) ? current.filter(s => s !== surface) : [...current, surface] });
+            }}
           >
             {SURFACE_ICONS[surface]}
             <span className="font-medium text-sm mt-1">{t(`tc_${surface}`)}</span>
@@ -435,24 +441,32 @@ function PvcCardsConfig({ state, updateState, t }: StepProps) {
 // ── Main Export ──
 
 export function StepTechnicalConfig({ state, updateState, t }: StepProps) {
-  const renderConfig = () => {
-    switch (state.productionType) {
-      case 'uvPrinting':
-        return <UvPrintingConfig state={state} updateState={updateState} t={t} />;
-      case 'textileDtgDtf':
-        return <TextileConfig state={state} updateState={updateState} t={t} />;
-      case 'laserCutting':
-        return <LaserConfig state={state} updateState={updateState} t={t} />;
-      case 'packaging':
-        return <PackagingConfig state={state} updateState={updateState} t={t} />;
-      case 'pvcCards':
-        return <PvcCardsConfig state={state} updateState={updateState} t={t} />;
-      default:
-        return (
-          <p className="text-muted-foreground">{t('tc_selectProductionFirst')}</p>
-        );
-    }
-  };
+  if (state.productionType.length === 0) {
+    return <p className="text-muted-foreground">{t('tc_selectProductionFirst')}</p>;
+  }
 
-  return <div className="space-y-2">{renderConfig()}</div>;
+  return (
+    <div className="space-y-2">
+      <div className="mb-6">
+        <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">PASO 03</p>
+        <h3 className="text-display text-[32px] leading-tight mb-2">{t('ws_step3')}</h3>
+        <p className="text-base text-muted-foreground max-w-[520px]">{t('tc_subtitle') || 'Configura los detalles técnicos de tu producción.'}</p>
+      </div>
+      {state.productionType.includes('uvPrinting') && (
+        <UvPrintingConfig state={state} updateState={updateState} t={t} />
+      )}
+      {state.productionType.includes('textileDtgDtf') && (
+        <TextileConfig state={state} updateState={updateState} t={t} />
+      )}
+      {state.productionType.includes('laserCutting') && (
+        <LaserConfig state={state} updateState={updateState} t={t} />
+      )}
+      {state.productionType.includes('packaging') && (
+        <PackagingConfig state={state} updateState={updateState} t={t} />
+      )}
+      {state.productionType.includes('pvcCards') && (
+        <PvcCardsConfig state={state} updateState={updateState} t={t} />
+      )}
+    </div>
+  );
 }

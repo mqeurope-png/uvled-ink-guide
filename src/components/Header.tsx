@@ -1,7 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft, Home } from 'lucide-react';
+import { ChevronLeft, Home, Phone } from 'lucide-react';
 
 export function Header() {
   const { t } = useLanguage();
@@ -30,7 +30,14 @@ export function Header() {
             </span>
           </Link>
         </div>
-        <LanguageSelector />
+        <div className="flex items-center gap-4">
+          {/* ADMIN: replaceable via admin panel */}
+          <a href="tel:+34682627056" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Phone className="h-4 w-4" />
+            +34 682 62 70 56
+          </a>
+          <LanguageSelector />
+        </div>
       </div>
     </header>
   );

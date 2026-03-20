@@ -366,7 +366,49 @@ export function GlobalSettings() {
         </div>
       </Section>
 
-      {/* ── 7. Maintenance Mode ── */}
+      {/* ── 7. Images & Media ── */}
+      <Section title="Images & Media" icon={ImageIcon}>
+        <p className="text-xs text-muted-foreground mb-4">
+          Manage placeholder images used throughout the site. All images are replaceable via URL.
+        </p>
+        <div className="space-y-4">
+          {/* ADMIN: replaceable via admin panel */}
+          {[
+            { key: 'heroBackground', label: 'Hero Background Image', default: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&h=600&fit=crop' },
+            { key: 'uvPrintingGallery1', label: 'UV Printing Gallery 1', default: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=300&h=200&fit=crop' },
+            { key: 'uvPrintingGallery2', label: 'UV Printing Gallery 2', default: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop' },
+            { key: 'uvPrintingGallery3', label: 'UV Printing Gallery 3', default: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=300&h=200&fit=crop' },
+            { key: 'textileGallery1', label: 'Textile Gallery 1', default: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=300&h=200&fit=crop' },
+            { key: 'packagingGallery1', label: 'Packaging Gallery 1', default: 'https://images.unsplash.com/photo-1607082350899-7e105aa886ae?w=300&h=200&fit=crop' },
+            { key: 'clientLogo1', label: 'Client Logo 1', default: '' },
+            { key: 'clientLogo2', label: 'Client Logo 2', default: '' },
+            { key: 'testimonialAvatar1', label: 'Testimonial Avatar 1', default: '' },
+          ].map(img => (
+            <div key={img.key} className="space-y-1.5">
+              <Label className="text-xs">{img.label}</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={(settings as Record<string, unknown>)[img.key] as string || img.default}
+                  onChange={e => update(img.key as keyof GlobalSettingsType, e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                {((settings as Record<string, unknown>)[img.key] as string || img.default) && (
+                  <img
+                    src={(settings as Record<string, unknown>)[img.key] as string || img.default}
+                    alt={img.label}
+                    className="h-10 w-16 object-cover rounded"
+                    style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                    onError={e => (e.currentTarget.style.display = 'none')}
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── 8. Maintenance Mode ── */}
       <Section
         title="Maintenance Mode"
         icon={AlertTriangle}

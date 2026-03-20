@@ -11,21 +11,12 @@ interface WizardProgressBarProps {
 }
 
 const STEP_KEYS = [
-  'ws_step1',
-  'ws_step2',
-  'ws_step3',
-  'ws_step4',
-  'ws_step5',
-  'ws_step6',
-  'ws_step7',
+  'ws_step1', 'ws_step2', 'ws_step3', 'ws_step4',
+  'ws_step5', 'ws_step6', 'ws_step7',
 ] as const;
 
 export function WizardProgressBar({
-  currentStep,
-  totalSteps,
-  onStepClick,
-  isStepAccessible,
-  t,
+  currentStep, totalSteps, onStepClick, isStepAccessible, t,
 }: WizardProgressBarProps) {
   const percentage = Math.round((currentStep / totalSteps) * 100) + '%';
 
@@ -45,9 +36,7 @@ export function WizardProgressBar({
                 <button
                   type="button"
                   onClick={() => {
-                    if (accessible || isCompleted || isCurrent) {
-                      onStepClick(step);
-                    }
+                    if (accessible || isCompleted || isCurrent) onStepClick(step);
                   }}
                   disabled={!accessible && !isCompleted && !isCurrent}
                   className="flex flex-col items-center gap-1.5 group"
@@ -55,25 +44,13 @@ export function WizardProgressBar({
                   <div
                     className={cn(
                       'relative flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold transition-all duration-300',
-                      isCompleted &&
-                        'bg-primary text-white cursor-pointer hover:brightness-[0.92]',
-                      isCurrent &&
-                        'ring-2 ring-primary ring-offset-2 ring-offset-background bg-primary text-white cursor-pointer',
-                      !isCompleted &&
-                        !isCurrent &&
-                        accessible &&
-                        'bg-muted text-muted-foreground cursor-pointer hover:bg-primary/10 hover:text-primary',
-                      !isCompleted &&
-                        !isCurrent &&
-                        !accessible &&
-                        'bg-muted/50 text-muted-foreground/50 cursor-not-allowed'
+                      isCompleted && 'bg-primary text-white cursor-pointer hover:brightness-[0.92] step-completed-glow',
+                      isCurrent && 'bg-primary text-white cursor-pointer step-current-pulse',
+                      !isCompleted && !isCurrent && accessible && 'bg-muted text-muted-foreground cursor-pointer hover:bg-primary/10 hover:text-primary',
+                      !isCompleted && !isCurrent && !accessible && 'bg-muted/50 text-muted-foreground/50 cursor-not-allowed'
                     )}
                   >
-                    {isCompleted ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      step
-                    )}
+                    {isCompleted ? <Check className="w-4 h-4" /> : step}
                   </div>
                   <span
                     className={cn(
@@ -92,9 +69,7 @@ export function WizardProgressBar({
                     <div
                       className={cn(
                         'h-0.5 rounded-full transition-all duration-300',
-                        step < currentStep
-                          ? 'bg-primary'
-                          : 'bg-muted'
+                        step < currentStep ? 'bg-primary' : 'bg-muted'
                       )}
                     />
                   </div>
@@ -109,16 +84,12 @@ export function WizardProgressBar({
       <div className="md:hidden px-4 py-3">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white text-xs font-bold">
+            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white text-xs font-bold step-current-pulse">
               {currentStep}
             </span>
-            <span className="text-sm font-medium">
-              {t(STEP_KEYS[currentStep - 1])}
-            </span>
+            <span className="text-sm font-medium">{t(STEP_KEYS[currentStep - 1])}</span>
           </div>
-          <span className="text-xs text-muted-foreground font-medium">
-            {percentage}
-          </span>
+          <span className="text-xs text-muted-foreground font-medium">{percentage}</span>
         </div>
         <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
           <div
