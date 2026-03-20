@@ -1,8 +1,16 @@
 // Quote storage utilities for localStorage persistence
 
+export interface CustomerData {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+}
+
 export interface QuoteItem {
   id: string;
   createdAt: string;
+  customer: CustomerData;
   objectMeasures: {
     width: number;
     length: number;

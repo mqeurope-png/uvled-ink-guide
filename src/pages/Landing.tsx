@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { Button } from '@/components/ui/button';
 import { Printer, Calculator } from 'lucide-react';
-import { QuoteCalculator } from '@/components/QuoteCalculator';
+import { QuoteWizard } from '@/components/QuoteWizard';
 
 const Landing = () => {
   const { t } = useLanguage();
@@ -80,7 +80,7 @@ const Landing = () => {
       </footer>
 
       {/* Quote Calculator Dialog */}
-      <QuoteCalculator
+      <QuoteWizard
         open={showQuoteCalculator}
         onOpenChange={setShowQuoteCalculator}
       />

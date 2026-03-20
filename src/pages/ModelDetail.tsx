@@ -6,7 +6,7 @@ import { Header } from '@/components/Header';
 import { SectionButton } from '@/components/SectionButton';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
-import { QuoteCalculator } from '@/components/QuoteCalculator';
+import { QuoteWizard } from '@/components/QuoteWizard';
 import { 
   Cpu, 
   Puzzle,
@@ -270,7 +270,7 @@ const ModelDetail = () => {
       </main>
 
       {/* Quote Calculator Dialog */}
-      <QuoteCalculator
+      <QuoteWizard
         open={showQuoteCalculator}
         onOpenChange={setShowQuoteCalculator}
         initialModelId={model.id}

@@ -1,0 +1,261 @@
+import { useMemo } from 'react';
+import { Download, Send, Video, X, Plus } from 'lucide-react';
+import { WizardState } from '@/lib/wizardTypes';
+import { printerModels } from '@/lib/printerData';
+import { parsePrice, formatPrice } from '@/lib/quoteUtils';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+
+interface StepProps {
+  state: WizardState;
+  updateState: (updates: Partial<WizardState>) => void;
+  t: (key: string) => string;
+}
+
+interface StepQuoteSummaryProps extends StepProps {
+  onExportPDF: () => void;
+  onSendEmail: () => void;
+  onRequestDemo: () => void;
+}
+
+export function StepQuoteSummary({
+  state,
+  updateState,
+  t,
+  onExportPDF,
+  onSendEmail,
+  onRequestDemo,
+}: StepQuoteSummaryProps) {
+  const selectedModelData = useMemo(
+    () =>
+      state.selectedProducts
+        .map((id) => printerModels.find((m) => m.id === id))
+        .filter(Boolean) as typeof printerModels,
+    [state.selectedProducts]
+  );
+
+  const subtotal = useMemo(() => {
+    let total = 0;
+    for (const model of selectedModelData) {
+      const price = parsePrice(model.price);
+      if (price) total += price;
+    }
+    for (const acc of state.selectedAccessories) {
+      const price = parsePrice(acc.price);
+      if (price) total += price;
+    }
+    return total;
+  }, [selectedModelData, state.selectedAccessories]);
+
+  function removeProduct(modelId: string) {
+    updateState({
+      selectedProducts: state.selectedProducts.filter((id) => id !== modelId),
+      selectedAccessories: state.selectedAccessories.filter(
+        (a) => a.modelId !== modelId
+      ),
+    });
+  }
+
+  function removeAccessory(modelId: string, accessoryId: string) {
+    updateState({
+      selectedAccessories: state.selectedAccessories.filter(
+        (a) => !(a.modelId === modelId && a.accessoryId === accessoryId)
+      ),
+    });
+  }
+
+  function addAccessory(
+    modelId: string,
+    accessoryId: string,
+    name: string,
+    price?: string
+  ) {
+    updateState({
+      selectedAccessories: [
+        ...state.selectedAccessories,
+        { modelId, accessoryId, name, price },
+      ],
+    });
+  }
+
+  // Get unselected accessories for upsell
+  function getUpsellAccessories(modelId: string) {
+    const model = printerModels.find((m) => m.id === modelId);
+    if (!model) return [];
+    return model.accessories.filter(
+      (acc) =>
+        !state.selectedAccessories.some(
+          (a) => a.modelId === modelId && a.accessoryId === acc.id
+        )
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* 1. Selected Products */}
+      <section>
+        <h3 className="font-semibold text-lg mb-3">{t('sum_selectedProducts')}</h3>
+        {selectedModelData.length === 0 ? (
+          <p className="text-muted-foreground text-sm">{t('sum_noProducts')}</p>
+        ) : (
+          <div className="space-y-3">
+            {selectedModelData.map((model) => (
+              <div key={model.id}>
+                <div className="flex items-center gap-3 border rounded-lg p-3">
+                  {model.image && (
+                    <img
+                      src={model.image}
+                      alt={model.name}
+                      className="w-16 h-16 object-contain rounded bg-muted flex-shrink-0"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{model.name}</p>
+                    <p className="text-sm text-muted-foreground">{model.brand}</p>
+                    {model.price && (
+                      <p className="text-sm font-semibold mt-0.5">{model.price}</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="flex-shrink-0"
+                    onClick={() => removeProduct(model.id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Selected accessories for this model */}
+                {state.selectedAccessories
+                  .filter((a) => a.modelId === model.id)
+                  .map((acc) => (
+                    <div
+                      key={`${acc.modelId}-${acc.accessoryId}`}
+                      className="flex items-center gap-3 ml-6 mt-1 border rounded-lg p-2 bg-muted/30"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm">{acc.name}</p>
+                        {acc.price && (
+                          <p className="text-xs text-muted-foreground">{acc.price}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 flex-shrink-0"
+                        onClick={() => removeAccessory(acc.modelId, acc.accessoryId)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <Separator />
+
+      {/* 2. Orientative Subtotal */}
+      <section>
+        <div className="flex items-baseline justify-between">
+          <h3 className="font-semibold text-lg">{t('sum_subtotal')}</h3>
+          <p className="text-2xl font-bold">{formatPrice(subtotal)}</p>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">{t('rec_disclaimer')}</p>
+      </section>
+
+      <Separator />
+
+      {/* 3. Accessories Upsell */}
+      {selectedModelData.some(
+        (model) => getUpsellAccessories(model.id).length > 0
+      ) && (
+        <section>
+          <h3 className="font-semibold text-lg mb-3">{t('sum_accessoriesUpsell')}</h3>
+          <div className="space-y-4">
+            {selectedModelData.map((model) => {
+              const upsell = getUpsellAccessories(model.id);
+              if (upsell.length === 0) return null;
+              return (
+                <div key={model.id}>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {model.name}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {upsell.map((acc) => (
+                      <div
+                        key={acc.id}
+                        className="flex items-center gap-3 border rounded-lg p-3"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{acc.name}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {acc.description}
+                          </p>
+                          {acc.price && (
+                            <p className="text-xs font-medium mt-0.5">{acc.price}</p>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-shrink-0"
+                          onClick={() =>
+                            addAccessory(model.id, acc.id, acc.name, acc.price)
+                          }
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          {t('sum_addAccessory')}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <Separator />
+
+      {/* 4. Notes */}
+      <section>
+        <Label htmlFor="quoteNotes" className="font-semibold text-lg">
+          {t('sum_notes')}
+        </Label>
+        <Textarea
+          id="quoteNotes"
+          placeholder={t('sum_notesPlaceholder')}
+          value={state.notes}
+          onChange={(e) => updateState({ notes: e.target.value })}
+          className="mt-2"
+          rows={4}
+        />
+      </section>
+
+      <Separator />
+
+      {/* 5. Action Buttons */}
+      <section className="flex flex-col sm:flex-row gap-3">
+        <Button variant="outline" className="flex-1" onClick={onExportPDF}>
+          <Download className="h-4 w-4 mr-2" />
+          {t('sum_downloadPDF')}
+        </Button>
+        <Button className="flex-1" onClick={onSendEmail}>
+          <Send className="h-4 w-4 mr-2" />
+          {t('sum_sendToBoprint')}
+        </Button>
+        <Button variant="outline" className="flex-1" onClick={onRequestDemo}>
+          <Video className="h-4 w-4 mr-2" />
+          {t('sum_requestDemo')}
+        </Button>
+      </section>
+    </div>
+  );
+}
