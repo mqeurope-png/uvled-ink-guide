@@ -7,8 +7,8 @@ import { SectionButton } from '@/components/SectionButton';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
 import { QuoteWizard } from '@/components/QuoteWizard';
-import { 
-  Cpu, 
+import {
+  Cpu,
   Puzzle,
   ArrowLeft,
   Euro,
@@ -97,7 +97,7 @@ const ModelDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container py-16">
         {/* Back Button */}
         <Button
@@ -114,10 +114,10 @@ const ModelDetail = () => {
           <div>
             {/* Model Header */}
             <section className="mb-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              <p className="text-label text-muted-foreground">
                 {model.brand}
               </p>
-              <h1 className="mt-4 text-4xl text-ultra-slim tracking-tight md:text-5xl">
+              <h1 className="mt-4 text-4xl text-display tracking-tight md:text-5xl">
                 {model.fullName}
               </h1>
               <p className="mt-4 text-muted-foreground">
@@ -127,10 +127,10 @@ const ModelDetail = () => {
 
             {/* Image */}
             {model.image && (
-              <section className="border border-border-subtle bg-muted/10 p-6">
+              <section className="rounded-lg bg-[#f9f7f4] p-6" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                 <AspectRatio ratio={4/3}>
-                  <img 
-                    src={model.image} 
+                  <img
+                    src={model.image}
                     alt={model.fullName}
                     className="h-full w-full object-contain"
                   />
@@ -141,7 +141,7 @@ const ModelDetail = () => {
 
           {/* Right Column - Sections Grid */}
           <section>
-            <h2 className="mb-6 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            <h2 className="text-label mb-6 text-muted-foreground">
               {t('selectSection')}
             </h2>
             <div className="grid gap-4">
@@ -153,18 +153,21 @@ const ModelDetail = () => {
                   title={section.title}
                 />
               ))}
-              
+
               {/* Price Button */}
               {model.price && (
                 <button
                   onClick={() => setShowPrice(!showPrice)}
-                  className="group flex items-center gap-6 border border-border-subtle bg-card p-6 text-left transition-all duration-300 hover:border-foreground/20 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                  className="group flex items-center gap-6 rounded-lg bg-card p-6 text-left transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                  style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.16)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)'}
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border-subtle text-muted-foreground transition-colors group-hover:border-foreground/20 group-hover:text-foreground">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent text-primary transition-colors">
                     <Euro className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-lg text-slim">{t('recommendedPrice')}</span>
+                    <span className="text-lg font-medium">{t('recommendedPrice')}</span>
                   </div>
                   <span className="text-xs text-muted-foreground transition-transform duration-300 group-hover:translate-x-1">
                     {showPrice ? '−' : '+'}
@@ -174,11 +177,11 @@ const ModelDetail = () => {
 
               {/* Price Display */}
               {showPrice && model.price && (
-                <div className="border border-border-subtle bg-muted/30 p-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="surface-alt rounded-lg p-6 animate-in fade-in slide-in-from-top-2 duration-300" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{t('recommendedPrice')}</span>
                     <div className="text-right">
-                      <span className="text-2xl font-semibold text-foreground">{model.price}</span>
+                      <span className="text-price text-2xl">{model.price}</span>
                       <span className="ml-2 text-sm text-muted-foreground">{t('plusTax')}</span>
                       {model.priceWithVat && (
                         <p className="text-sm text-muted-foreground">
@@ -193,13 +196,16 @@ const ModelDetail = () => {
               {/* Contact Button */}
               <button
                 onClick={() => setShowContact(!showContact)}
-                className="group flex items-center gap-6 border border-border-subtle bg-card p-6 text-left transition-all duration-300 hover:border-foreground/20 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                className="group flex items-center gap-6 rounded-lg bg-card p-6 text-left transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.16)'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)'}
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border-subtle text-muted-foreground transition-colors group-hover:border-foreground/20 group-hover:text-foreground">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent text-primary transition-colors">
                   <Mail className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-lg text-slim">{t('contact')}</span>
+                  <span className="text-lg font-medium">{t('contact')}</span>
                 </div>
                 <span className="text-xs text-muted-foreground transition-transform duration-300 group-hover:translate-x-1">
                   {showContact ? '−' : '+'}
@@ -208,7 +214,7 @@ const ModelDetail = () => {
 
               {/* Contact Display */}
               {showContact && (
-                <div className="border border-border-subtle bg-muted/30 p-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="surface-alt rounded-lg p-6 animate-in fade-in slide-in-from-top-2 duration-300" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                   <div className="space-y-3">
                     {contact.name && (
                       <div className="flex items-center gap-3">
@@ -216,31 +222,31 @@ const ModelDetail = () => {
                         <span className="text-sm font-medium">{contact.name}</span>
                       </div>
                     )}
-                    
-                    <a 
+
+                    <a
                       href={`mailto:${contact.email}`}
-                      className="flex items-center gap-3 text-sm hover:text-foreground transition-colors"
+                      className="flex items-center gap-3 text-sm hover:text-primary transition-colors"
                     >
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       <span>{contact.email}</span>
                     </a>
-                    
+
                     {contact.phones.map((phone, index) => (
-                      <a 
+                      <a
                         key={index}
                         href={`tel:${phone.replace(/\s/g, '')}`}
-                        className="flex items-center gap-3 text-sm hover:text-foreground transition-colors"
+                        className="flex items-center gap-3 text-sm hover:text-primary transition-colors"
                       >
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <span>{phone}</span>
                       </a>
                     ))}
-                    
-                    <a 
+
+                    <a
                       href={`https://${contact.website}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-sm hover:text-foreground transition-colors"
+                      className="flex items-center gap-3 text-sm hover:text-primary transition-colors"
                     >
                       <Globe className="h-4 w-4 text-muted-foreground" />
                       <span>{contact.website}</span>
@@ -252,15 +258,15 @@ const ModelDetail = () => {
               {/* Quote Button */}
               <button
                 onClick={() => setShowQuoteCalculator(true)}
-                className="group flex items-center gap-6 border border-border-subtle bg-card p-6 text-left transition-all duration-300 hover:border-foreground/20 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                className="group flex items-center gap-6 rounded-lg bg-primary text-white p-6 text-left transition-all duration-300 hover:brightness-[0.92] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border-subtle text-muted-foreground transition-colors group-hover:border-foreground/20 group-hover:text-foreground">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/20 transition-colors">
                   <Calculator className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-lg text-slim">{t('quoteButton')}</span>
+                  <span className="text-lg font-medium">{t('quoteButton')}</span>
                 </div>
-                <span className="text-xs text-muted-foreground transition-transform duration-300 group-hover:translate-x-1">
+                <span className="text-xs opacity-70 transition-transform duration-300 group-hover:translate-x-1">
                   →
                 </span>
               </button>

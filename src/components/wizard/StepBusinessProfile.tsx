@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import {
   Store,
   PanelTop,
@@ -7,6 +8,7 @@ import {
   UtensilsCrossed,
   User,
   MoreHorizontal,
+  Check,
   type LucideIcon,
 } from 'lucide-react';
 import { WizardState, BusinessProfile, BUSINESS_PROFILES } from '@/lib/wizardTypes';
@@ -36,29 +38,34 @@ export function StepBusinessProfile({ state, updateState, t }: StepProps) {
         const isSelected = state.businessProfile === profile;
 
         return (
-          <button
+          <motion.button
             key={profile}
             type="button"
             onClick={() => updateState({ businessProfile: profile })}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
             className={`
-              flex flex-col items-start gap-3 border rounded-lg p-6 text-left
-              transition-all duration-150 cursor-pointer
-              hover:border-foreground/50 hover:shadow-sm
-              ${
-                isSelected
-                  ? 'border-foreground bg-muted'
-                  : 'border-border-subtle'
+              relative flex flex-col items-start gap-3 rounded-lg p-6 text-left
+              transition-shadow duration-200 cursor-pointer
+              ${isSelected
+                ? 'bg-[#fdf0eb] border-2 border-primary'
+                : 'bg-card border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-md'
               }
             `}
           >
-            <Icon className="h-8 w-8" />
+            {isSelected && (
+              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                <Check className="h-3 w-3 text-white" />
+              </div>
+            )}
+            <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
             <div>
               <p className="font-medium">{t(`bp_${profile}`)}</p>
               <p className="text-sm text-muted-foreground mt-1">
                 {t(`bp_${profile}Desc`)}
               </p>
             </div>
-          </button>
+          </motion.button>
         );
       })}
     </div>

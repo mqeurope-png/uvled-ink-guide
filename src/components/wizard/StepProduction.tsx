@@ -1,9 +1,11 @@
+import { motion } from 'framer-motion';
 import {
   Printer,
   Shirt,
   Package,
   Zap,
   CreditCard,
+  Check,
   type LucideIcon,
 } from 'lucide-react';
 import { WizardState, ProductionType, PRODUCTION_TYPES } from '@/lib/wizardTypes';
@@ -40,34 +42,40 @@ export function StepProduction({ state, updateState, t }: StepProps) {
         const isComingSoon = type !== 'uvPrinting';
 
         return (
-          <button
+          <motion.button
             key={type}
             type="button"
             onClick={() => updateState({ productionType: type })}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
             className={`
-              relative flex flex-col items-start gap-3 border rounded-lg p-6 text-left
-              transition-all duration-150 cursor-pointer
-              hover:border-foreground/50 hover:shadow-sm
-              ${
-                isSelected
-                  ? 'border-foreground bg-muted'
-                  : 'border-border-subtle'
+              relative flex flex-col items-start gap-3 rounded-lg p-6 text-left
+              transition-shadow duration-200 cursor-pointer
+              ${isSelected
+                ? 'bg-[#fdf0eb] border-2 border-primary'
+                : 'bg-card border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-md'
               }
             `}
           >
-            <span
-              className={`
-                absolute top-3 right-3 text-xs font-medium px-2 py-0.5 rounded-full
-                ${
-                  isComingSoon
+            {isSelected && (
+              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                <Check className="h-3 w-3 text-white" />
+              </div>
+            )}
+            {!isSelected && (
+              <span
+                className={`
+                  absolute top-3 right-3 text-xs font-medium px-2 py-0.5 rounded-full
+                  ${isComingSoon
                     ? 'bg-muted text-muted-foreground'
                     : 'bg-primary/10 text-primary'
-                }
-              `}
-            >
-              {badge}
-            </span>
-            <Icon className={`h-8 w-8 ${isComingSoon ? 'opacity-60' : ''}`} />
+                  }
+                `}
+              >
+                {badge}
+              </span>
+            )}
+            <Icon className={`h-8 w-8 ${isComingSoon ? 'opacity-60' : ''} ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
             <div>
               <p className={`font-medium ${isComingSoon ? 'opacity-70' : ''}`}>
                 {t(`pr_${type}`)}
@@ -76,7 +84,7 @@ export function StepProduction({ state, updateState, t }: StepProps) {
                 {t(`pr_${type}Desc`)}
               </p>
             </div>
-          </button>
+          </motion.button>
         );
       })}
     </div>

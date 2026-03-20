@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import {
   Zap,
   Calendar,
@@ -9,6 +10,7 @@ import {
   TrendingUp,
   Award,
   Landmark,
+  Check,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -47,32 +49,41 @@ function OptionCard({
   badge?: string;
 }) {
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.98 }}
       className={`
-        relative flex flex-col items-center justify-center gap-2 border rounded-lg p-4 text-center
-        transition-all duration-150 cursor-pointer
-        hover:border-foreground/50 hover:shadow-sm
-        ${selected ? 'border-foreground bg-muted' : 'border-border-subtle'}
+        relative flex flex-col items-center justify-center gap-2 rounded-lg p-4 text-center
+        transition-shadow duration-200 cursor-pointer
+        ${selected
+          ? 'bg-[#fdf0eb] border-2 border-primary'
+          : 'bg-card border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-md'
+        }
       `}
     >
       {badge && (
-        <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+        <span className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
           {badge}
         </span>
       )}
-      {Icon && <Icon className="h-6 w-6" />}
+      {selected && !badge && (
+        <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+          <Check className="h-2.5 w-2.5 text-white" />
+        </div>
+      )}
+      {Icon && <Icon className={`h-6 w-6 ${selected ? 'text-primary' : 'text-muted-foreground'}`} />}
       <span className="font-medium text-sm">{label}</span>
       {sublabel && (
         <span className="text-xs text-muted-foreground">{sublabel}</span>
       )}
-    </button>
+    </motion.button>
   );
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-base font-semibold mt-8 mb-3 first:mt-0">{children}</h3>;
+  return <h3 className="text-base font-medium mt-8 mb-3 first:mt-0">{children}</h3>;
 }
 
 // ── Icon / label maps ──

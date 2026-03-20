@@ -49,7 +49,7 @@ const BrandModels = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container py-16">
         {/* Back Button */}
         <Button
@@ -63,7 +63,7 @@ const BrandModels = () => {
 
         {/* Title */}
         <section className="mb-12 text-center">
-          <h1 className="text-4xl text-ultra-slim tracking-tight md:text-5xl">
+          <h1 className="text-4xl text-display tracking-tight md:text-5xl">
             {getBrandTitle()}
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
@@ -75,9 +75,9 @@ const BrandModels = () => {
         <section>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {models.map((model) => (
-              <ModelCard 
-                key={model.id} 
-                model={model} 
+              <ModelCard
+                key={model.id}
+                model={model}
               />
             ))}
           </div>
@@ -85,7 +85,7 @@ const BrandModels = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border-subtle py-8">
+      <footer className="py-8" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
         <div className="container">
           <p className="text-center text-xs text-muted-foreground">
             © 2025 MBO PRINTERS / ARTISJET. Powered by{' '}
@@ -93,7 +93,7 @@ const BrandModels = () => {
               href="https://www.boprint.net"
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-colors hover:text-foreground"
+              className="transition-colors hover:text-primary"
             >
               boprint.net
             </a>

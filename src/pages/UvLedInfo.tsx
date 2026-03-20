@@ -11,11 +11,11 @@ const UvLedInfo = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container py-8 md:py-16">
         {/* Title */}
         <section className="mb-8 md:mb-16 text-center">
-          <h1 className="text-3xl text-ultra-slim tracking-tight md:text-6xl mb-4 md:mb-6">
+          <h1 className="text-3xl text-display tracking-tight md:text-6xl mb-4 md:mb-6">
             {t('uvLedTechnology')}
           </h1>
           <p className="mx-auto max-w-3xl text-muted-foreground text-base md:text-lg">
@@ -28,12 +28,15 @@ const UvLedInfo = () => {
           <div className="max-w-xl mx-auto">
             <button
               onClick={() => navigate('/uv-technology')}
-              className="group w-full flex items-center gap-3 md:gap-4 p-4 md:p-6 text-left border border-border-subtle rounded-lg bg-card/50 hover:bg-foreground hover:text-background transition-all duration-300"
+              className="group w-full flex items-center gap-3 md:gap-4 p-4 md:p-6 text-left rounded-lg bg-card hover:text-primary transition-all duration-300"
+              style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.16)'}
+              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)'}
             >
               <Lightbulb className="h-8 w-8 md:h-10 md:w-10 shrink-0 stroke-[0.5] group-hover:stroke-[0.75] transition-all" />
               <div className="flex-1 min-w-0">
                 <h3 className="text-base md:text-lg font-medium mb-1">{t('uvTechnologyButton')}</h3>
-                <p className="text-xs md:text-sm text-muted-foreground group-hover:text-background/70 line-clamp-2">
+                <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
                   {t('uvTechnologyButtonDesc')}
                 </p>
               </div>
@@ -44,23 +47,22 @@ const UvLedInfo = () => {
 
         {/* Brand Selection */}
         <section className="text-center mb-10 md:mb-16">
-          <h2 className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-6 md:mb-8">
+          <h2 className="text-label text-muted-foreground mb-6 md:mb-8">
             {t('selectBrand')}
           </h2>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center max-w-2xl mx-auto">
             <Button
               onClick={() => navigate('/brand/artisjet')}
-              variant="outline"
-              className="flex-1 h-20 md:h-24 text-lg md:text-xl text-slim border-foreground hover:bg-foreground hover:text-background transition-all"
+              className="flex-1 h-20 md:h-24 text-lg md:text-xl font-medium rounded-lg bg-primary text-white hover:brightness-[0.92] transition-all"
             >
               ARTISJET
             </Button>
-            
+
             <Button
               onClick={() => navigate('/brand/mbo')}
               variant="outline"
-              className="flex-1 h-20 md:h-24 text-lg md:text-xl text-slim border-foreground hover:bg-foreground hover:text-background transition-all"
+              className="flex-1 h-20 md:h-24 text-lg md:text-xl font-medium rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all"
             >
               MBO PRINTERS
             </Button>

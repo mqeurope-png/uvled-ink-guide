@@ -1,8 +1,10 @@
+import { motion } from 'framer-motion';
 import {
   Square,
   Circle,
   Hexagon,
   Info,
+  Check,
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -49,29 +51,38 @@ function SelectionCard({
   className?: string;
 }) {
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.98 }}
       className={`
-        flex flex-col items-center justify-center gap-1 border rounded-lg p-4 text-center
-        transition-all duration-150 cursor-pointer
-        hover:border-foreground/50 hover:shadow-sm
-        ${selected ? 'border-foreground bg-muted' : 'border-border-subtle'}
+        relative flex flex-col items-center justify-center gap-1 rounded-lg p-4 text-center
+        transition-shadow duration-200 cursor-pointer
+        ${selected
+          ? 'bg-[#fdf0eb] border-2 border-primary'
+          : 'bg-card border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-md'
+        }
         ${className}
       `}
     >
+      {selected && (
+        <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+          <Check className="h-2.5 w-2.5 text-white" />
+        </div>
+      )}
       {children}
-    </button>
+    </motion.button>
   );
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-base font-semibold mt-6 mb-3">{children}</h3>;
+  return <h3 className="text-base font-medium mt-6 mb-3">{children}</h3>;
 }
 
 function InfoBanner({ message }: { message: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 mb-4">
+    <div className="flex items-start gap-3 rounded-lg bg-[#fdf0eb] p-4 mb-4" style={{ border: '1px solid rgba(232,82,42,0.2)' }}>
       <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
       <p className="text-sm text-muted-foreground">{message}</p>
     </div>
@@ -150,7 +161,7 @@ function UvPrintingConfig({ state, updateState, t }: StepProps) {
         {UV_MATERIALS.map((mat) => (
           <label
             key={mat}
-            className="flex items-center gap-2 border border-border-subtle rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+            className="flex items-center gap-2 border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:bg-accent/50 rounded-lg p-3 cursor-pointer transition-colors"
           >
             <Checkbox
               checked={state.uvMaterials.includes(mat)}
@@ -357,7 +368,7 @@ function PackagingConfig({ state, updateState, t }: StepProps) {
         placeholder={t('tc_packDimensionsPlaceholder')}
         value={state.packagingDimensions}
         onChange={(e) => updateState({ packagingDimensions: e.target.value })}
-        className="max-w-sm"
+        className="max-w-sm rounded-lg focus:border-primary focus:ring-primary"
       />
 
       <SectionHeading>{t('tc_packMinBatch')}</SectionHeading>
@@ -368,7 +379,7 @@ function PackagingConfig({ state, updateState, t }: StepProps) {
         onChange={(e) =>
           updateState({ packagingMinBatch: Math.max(1, Number(e.target.value) || 1) })
         }
-        className="max-w-[180px]"
+        className="max-w-[180px] rounded-lg focus:border-primary focus:ring-primary"
       />
     </>
   );
@@ -415,7 +426,7 @@ function PvcCardsConfig({ state, updateState, t }: StepProps) {
         onChange={(e) =>
           updateState({ cardVolume: Math.max(1, Number(e.target.value) || 1) })
         }
-        className="max-w-[180px]"
+        className="max-w-[180px] rounded-lg focus:border-primary focus:ring-primary"
       />
     </>
   );

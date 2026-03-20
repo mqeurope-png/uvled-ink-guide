@@ -54,14 +54,16 @@ interface SectionProps {
 
 function SummarySection({ icon, label, children }: SectionProps) {
   return (
-    <div className="border-b border-border/50 py-3 px-1 animate-in fade-in slide-in-from-right-2 duration-300">
-      <div className="flex items-center gap-2 mb-1.5">
-        <span className="text-muted-foreground">{icon}</span>
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {label}
-        </span>
+    <div className="py-3 px-1 animate-in fade-in slide-in-from-right-2 duration-300" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+      <div className="border-l-2 border-primary pl-3">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-muted-foreground">{icon}</span>
+          <span className="text-label text-muted-foreground">
+            {label}
+          </span>
+        </div>
+        <div className="text-sm text-foreground pl-6">{children}</div>
       </div>
-      <div className="text-sm text-foreground pl-6">{children}</div>
     </div>
   );
 }
@@ -172,7 +174,7 @@ function SummaryContent({ state, t }: { state: WizardState; t: (key: string) => 
         <div className="pt-3 px-1">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold">{t('wizard_estimatedTotal')}</span>
-            <span className="text-base font-bold text-primary">
+            <span className="text-price">
               {formatPrice(estimatedTotal)}
             </span>
           </div>
@@ -273,9 +275,9 @@ export function WizardSidebar({ state, currentStep, t }: WizardSidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:block fixed right-0 top-0 pt-[73px] w-72 h-full border-l bg-background/95 backdrop-blur z-30">
+      <aside className="hidden lg:block fixed right-0 top-0 pt-[73px] w-72 h-full bg-[#f0ede7] z-30" style={{ borderLeft: '1px solid rgba(0,0,0,0.08)' }}>
         <div className="h-full overflow-y-auto px-4 py-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+          <h3 className="text-label text-muted-foreground mb-3 flex items-center gap-2">
             <Package className="w-4 h-4" />
             {t('wizard_sidebarTitle')}
           </h3>
@@ -294,9 +296,10 @@ export function WizardSidebar({ state, currentStep, t }: WizardSidebarProps) {
         {/* Collapsed bar */}
         <div
           className={cn(
-            'fixed bottom-0 inset-x-0 z-40 bg-background border-t transition-all duration-300',
+            'fixed bottom-0 inset-x-0 z-40 bg-card transition-all duration-300',
             mobileExpanded ? 'rounded-t-xl' : ''
           )}
+          style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}
         >
           {/* Drag handle / toggle bar */}
           <button
@@ -316,7 +319,7 @@ export function WizardSidebar({ state, currentStep, t }: WizardSidebarProps) {
             </div>
             <div className="flex items-center gap-2">
               {estimatedTotal !== null && (
-                <span className="text-sm font-bold text-primary">
+                <span className="text-price">
                   {formatPrice(estimatedTotal)}
                 </span>
               )}

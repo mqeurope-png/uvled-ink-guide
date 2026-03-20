@@ -9,23 +9,23 @@ export function Header() {
   const isHome = location.pathname === '/';
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-subtle bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" style={{ borderColor: 'rgba(0,0,0,0.08)' }}>
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           {!isHome && (
             <Link
               to="/"
-              className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <ChevronLeft className="h-4 w-4" />
               <Home className="h-4 w-4" />
             </Link>
           )}
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded bg-foreground">
-              <span className="text-xs font-medium text-background">UV</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+              <span className="text-xs font-semibold text-white">UV</span>
             </div>
-            <span className="text-lg text-ultra-slim tracking-widest uppercase">
+            <span className="text-label tracking-widest">
               {t('brand')}
             </span>
           </Link>

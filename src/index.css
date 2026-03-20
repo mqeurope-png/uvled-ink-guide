@@ -1,90 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    --background: 38 33% 97%;
+    --foreground: 60 11% 5%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
+    --card-foreground: 60 11% 5%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
+    --popover-foreground: 60 11% 5%;
 
-    --primary: 0 0% 8%;
+    --primary: 13 78% 54%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 8%;
+    --secondary: 210 52% 23%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 36 18% 92%;
+    --muted-foreground: 60 3% 40%;
 
-    --accent: 0 0% 94%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 13 90% 96%;
+    --accent-foreground: 13 78% 54%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 8%;
+    --border: 0 0% 0% / 0.08;
+    --input: 0 0% 0% / 0.08;
+    --ring: 13 78% 54%;
 
-    --radius: 0.25rem;
+    --radius: 0.5rem;
 
-    /* Custom tokens */
-    --surface-elevated: 0 0% 98%;
-    --text-subtle: 0 0% 55%;
-    --border-subtle: 0 0% 92%;
-    --accent-blue: 210 100% 50%;
-    --accent-blue-foreground: 0 0% 100%;
+    --surface-alt: 36 18% 92%;
+    --border-hover: 0 0% 0% / 0.16;
+    --accent-soft: 13 90% 96%;
+    --hint: 40 4% 67%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 8%;
-    --sidebar-primary: 0 0% 8%;
+    --sidebar-background: 36 18% 92%;
+    --sidebar-foreground: 60 11% 5%;
+    --sidebar-primary: 13 78% 54%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 8%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 0 0% 8%;
-  }
-
-  .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 8%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 55%;
-
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 0 0% 85%;
-
-    --surface-elevated: 0 0% 8%;
-    --text-subtle: 0 0% 50%;
-    --border-subtle: 0 0% 14%;
+    --sidebar-accent: 13 90% 96%;
+    --sidebar-accent-foreground: 13 78% 54%;
+    --sidebar-border: 0 0% 0% / 0.08;
+    --sidebar-ring: 13 78% 54%;
   }
 }
 
@@ -95,37 +57,96 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
-    font-weight: 300;
-    letter-spacing: 0.01em;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.65;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: 200;
-    letter-spacing: -0.02em;
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: clamp(2.625rem, 5vw, 3.5rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: clamp(1.75rem, 3vw, 2rem);
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: clamp(1.125rem, 2vw, 1.25rem);
+    line-height: 1.4;
   }
 }
 
 @layer utilities {
-  .text-slim {
-    font-weight: 200;
-    letter-spacing: 0.02em;
+  .text-display {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
   }
 
-  .text-ultra-slim {
-    font-weight: 100;
-    letter-spacing: 0.03em;
+  .text-display-italic {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-style: italic;
   }
 
-  .surface-elevated {
-    @apply bg-[hsl(var(--surface-elevated))];
+  .text-label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .text-price {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    color: hsl(var(--primary));
+  }
+
+  .surface-alt {
+    background-color: hsl(var(--surface-alt));
   }
 
   .border-subtle {
-    @apply border-[hsl(var(--border-subtle))];
+    border-color: hsl(var(--border));
   }
 
-  .text-subtle {
-    @apply text-[hsl(var(--text-subtle))];
+  .border-hover {
+    border-color: hsl(var(--border-hover));
+  }
+
+  .text-hint {
+    color: hsl(var(--hint));
+  }
+
+  /* Selection card states */
+  .selection-card {
+    @apply bg-card border rounded-lg transition-all duration-200 cursor-pointer;
+    border-color: rgba(0,0,0,0.08);
+  }
+
+  .selection-card:hover {
+    border-color: rgba(0,0,0,0.16);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+  }
+
+  .selection-card:active {
+    transform: scale(0.98);
+  }
+
+  .selection-card-selected {
+    border-color: hsl(var(--primary));
+    border-width: 2px;
+    background-color: hsl(var(--accent-soft));
   }
 }

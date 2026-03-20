@@ -6,7 +6,6 @@ import { parsePrice, formatPrice } from '@/lib/quoteUtils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 
 interface StepProps {
   state: WizardState;
@@ -96,14 +95,17 @@ export function StepQuoteSummary({
     <div className="space-y-6">
       {/* 1. Selected Products */}
       <section>
-        <h3 className="font-semibold text-lg mb-3">{t('sum_selectedProducts')}</h3>
+        <h3 className="text-lg font-medium mb-3">{t('sum_selectedProducts')}</h3>
         {selectedModelData.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t('sum_noProducts')}</p>
         ) : (
           <div className="space-y-3">
             {selectedModelData.map((model) => (
               <div key={model.id}>
-                <div className="flex items-center gap-3 border rounded-lg p-3">
+                <div
+                  className="flex items-center gap-3 rounded-lg bg-card p-3 transition-colors hover:border-[rgba(0,0,0,0.16)]"
+                  style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                >
                   {model.image && (
                     <img
                       src={model.image}
@@ -121,7 +123,7 @@ export function StepQuoteSummary({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 hover:text-primary"
                     onClick={() => removeProduct(model.id)}
                   >
                     <X className="h-4 w-4" />
@@ -134,7 +136,8 @@ export function StepQuoteSummary({
                   .map((acc) => (
                     <div
                       key={`${acc.modelId}-${acc.accessoryId}`}
-                      className="flex items-center gap-3 ml-6 mt-1 border rounded-lg p-2 bg-muted/30"
+                      className="flex items-center gap-3 ml-6 mt-1 rounded-lg bg-[#f9f7f4] p-2"
+                      style={{ border: '1px solid rgba(0,0,0,0.08)' }}
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm">{acc.name}</p>
@@ -145,7 +148,7 @@ export function StepQuoteSummary({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 flex-shrink-0"
+                        className="h-7 w-7 flex-shrink-0 hover:text-primary"
                         onClick={() => removeAccessory(acc.modelId, acc.accessoryId)}
                       >
                         <X className="h-3 w-3" />
@@ -158,25 +161,25 @@ export function StepQuoteSummary({
         )}
       </section>
 
-      <Separator />
+      <div className="h-px bg-[rgba(0,0,0,0.08)] my-6" />
 
       {/* 2. Orientative Subtotal */}
       <section>
         <div className="flex items-baseline justify-between">
-          <h3 className="font-semibold text-lg">{t('sum_subtotal')}</h3>
-          <p className="text-2xl font-bold">{formatPrice(subtotal)}</p>
+          <h3 className="text-lg font-medium">{t('sum_subtotal')}</h3>
+          <p className="text-price text-2xl">{formatPrice(subtotal)}</p>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{t('rec_disclaimer')}</p>
+        <p className="text-xs text-hint mt-1">{t('rec_disclaimer')}</p>
       </section>
 
-      <Separator />
+      <div className="h-px bg-[rgba(0,0,0,0.08)] my-6" />
 
       {/* 3. Accessories Upsell */}
       {selectedModelData.some(
         (model) => getUpsellAccessories(model.id).length > 0
       ) && (
         <section>
-          <h3 className="font-semibold text-lg mb-3">{t('sum_accessoriesUpsell')}</h3>
+          <h3 className="text-lg font-medium mb-3">{t('sum_accessoriesUpsell')}</h3>
           <div className="space-y-4">
             {selectedModelData.map((model) => {
               const upsell = getUpsellAccessories(model.id);
@@ -190,7 +193,8 @@ export function StepQuoteSummary({
                     {upsell.map((acc) => (
                       <div
                         key={acc.id}
-                        className="flex items-center gap-3 border rounded-lg p-3"
+                        className="flex items-center gap-3 rounded-lg p-3"
+                        style={{ border: '1px solid rgba(0,0,0,0.08)' }}
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium">{acc.name}</p>
@@ -202,9 +206,8 @@ export function StepQuoteSummary({
                           )}
                         </div>
                         <Button
-                          variant="outline"
                           size="sm"
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 border-2 border-primary text-primary bg-transparent rounded-lg hover:bg-primary/5"
                           onClick={() =>
                             addAccessory(model.id, acc.id, acc.name, acc.price)
                           }
@@ -222,11 +225,11 @@ export function StepQuoteSummary({
         </section>
       )}
 
-      <Separator />
+      <div className="h-px bg-[rgba(0,0,0,0.08)] my-6" />
 
       {/* 4. Notes */}
       <section>
-        <Label htmlFor="quoteNotes" className="font-semibold text-lg">
+        <Label htmlFor="quoteNotes" className="text-lg font-medium">
           {t('sum_notes')}
         </Label>
         <Textarea
@@ -234,24 +237,33 @@ export function StepQuoteSummary({
           placeholder={t('sum_notesPlaceholder')}
           value={state.notes}
           onChange={(e) => updateState({ notes: e.target.value })}
-          className="mt-2"
+          className="mt-2 rounded-lg focus:border-primary focus:ring-primary"
           rows={4}
         />
       </section>
 
-      <Separator />
+      <div className="h-px bg-[rgba(0,0,0,0.08)] my-6" />
 
       {/* 5. Action Buttons */}
       <section className="flex flex-col sm:flex-row gap-3">
-        <Button variant="outline" className="flex-1" onClick={onExportPDF}>
+        <Button
+          className="flex-1 border-2 border-primary text-primary bg-transparent rounded-lg hover:bg-primary/5"
+          onClick={onExportPDF}
+        >
           <Download className="h-4 w-4 mr-2" />
           {t('sum_downloadPDF')}
         </Button>
-        <Button className="flex-1" onClick={onSendEmail}>
+        <Button
+          className="flex-1 bg-primary text-white rounded-lg hover:brightness-[0.92]"
+          onClick={onSendEmail}
+        >
           <Send className="h-4 w-4 mr-2" />
           {t('sum_sendToBoprint')}
         </Button>
-        <Button variant="outline" className="flex-1" onClick={onRequestDemo}>
+        <Button
+          className="flex-1 border-2 border-primary text-primary bg-transparent rounded-lg hover:bg-primary/5"
+          onClick={onRequestDemo}
+        >
           <Video className="h-4 w-4 mr-2" />
           {t('sum_requestDemo')}
         </Button>

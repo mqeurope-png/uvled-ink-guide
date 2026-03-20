@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
-import { Button } from '@/components/ui/button';
 import { Printer, Calculator } from 'lucide-react';
 import { QuoteWizard } from '@/components/QuoteWizard';
 
@@ -14,7 +13,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-border-subtle">
+      <header style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
         <div className="container flex h-16 items-center justify-end">
           <LanguageSelector />
         </div>
@@ -24,46 +23,42 @@ const Landing = () => {
       <main className="flex-1 flex items-center justify-center">
         <div className="container text-center py-20">
           <div className="mb-8">
-            <Printer className="mx-auto h-20 w-20 text-foreground stroke-[0.5]" />
+            <Printer className="mx-auto h-20 w-20 text-primary stroke-[0.5]" />
           </div>
-          
-          <h1 className="text-5xl text-ultra-slim tracking-tight md:text-7xl mb-2">
+
+          <h1 className="text-display mb-2">
             BOMEDIA
           </h1>
-          
-          <h2 className="text-2xl text-slim tracking-wide text-muted-foreground md:text-3xl mb-4">
+
+          <h2 className="text-muted-foreground mb-4">
             {t('brand')}
           </h2>
-          
+
           <p className="mx-auto max-w-2xl text-muted-foreground text-lg mb-12">
             {t('landingSubtitle')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
+            <button
               onClick={() => navigate('/uv-led-info')}
-              variant="outline"
-              size="lg"
-              className="text-lg px-12 py-6 border-foreground hover:bg-foreground hover:text-background transition-all"
+              className="text-lg px-12 py-4 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all duration-200"
             >
               {t('enterButton')}
-            </Button>
-            
-            <Button
+            </button>
+
+            <button
               onClick={() => setShowQuoteCalculator(true)}
-              variant="outline"
-              size="lg"
-              className="text-lg px-12 py-6 border-foreground hover:bg-foreground hover:text-background transition-all gap-2"
+              className="text-lg px-12 py-4 rounded-lg bg-primary text-white font-medium hover:brightness-[0.92] transition-all duration-200 flex items-center justify-center gap-2"
             >
               <Calculator className="h-5 w-5" />
               {t('quoteButton')}
-            </Button>
+            </button>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border-subtle py-6">
+      <footer style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }} className="py-6">
         <div className="container">
           <p className="text-center text-xs text-muted-foreground">
             © 2025 MBO PRINTERS / ARTISJET. Powered by{' '}
@@ -71,7 +66,7 @@ const Landing = () => {
               href="https://www.boprint.net"
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-colors hover:text-foreground"
+              className="transition-colors hover:text-primary"
             >
               boprint.net
             </a>

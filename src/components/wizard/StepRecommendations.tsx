@@ -10,6 +10,7 @@ import {
   PackageOpen,
   X,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { WizardState } from '@/lib/wizardTypes';
 import {
   getRecommendations,
@@ -56,12 +57,15 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
   if (state.productionType !== 'uvPrinting') {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <PackageOpen className="h-16 w-16 text-muted-foreground mb-4" />
+        <PackageOpen className="h-16 w-16 text-primary mb-4" />
         <h3 className="text-lg font-semibold mb-2">{t('rec_noResults')}</h3>
         <p className="text-muted-foreground max-w-md mb-6">
           {t('rec_comingSoonMsg')}
         </p>
-        <Button onClick={() => updateState({ selectedProducts: [] })}>
+        <Button
+          className="bg-primary text-white rounded-lg hover:brightness-[0.92]"
+          onClick={() => updateState({ selectedProducts: [] })}
+        >
           {t('rec_skipToContact')}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -104,9 +108,9 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
   }
 
   function getScoreBadgeClass(score: number) {
-    if (score > 60) return 'bg-green-100 text-green-800 border-green-300';
-    if (score >= 30) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    return 'bg-gray-100 text-gray-800 border-gray-300';
+    if (score > 60) return 'bg-green-100 text-green-800 border-green-300 rounded-lg';
+    if (score >= 30) return 'bg-yellow-100 text-yellow-800 border-yellow-300 rounded-lg';
+    return 'bg-gray-100 text-gray-800 border-gray-300 rounded-lg';
   }
 
   function getRoiInput(modelId: string) {
@@ -134,13 +138,15 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
           const modelAccessories = rec.model.accessories;
 
           return (
-            <div
+            <motion.div
               key={rec.model.id}
-              className={`border rounded-lg overflow-hidden transition-all duration-150 ${
+              whileHover={{ y: -2 }}
+              className={`rounded-lg bg-card overflow-hidden transition-all duration-150 ${
                 isSelected
-                  ? 'border-foreground ring-1 ring-foreground/20'
-                  : 'border-border-subtle hover:border-foreground/30'
+                  ? 'border-2 border-primary bg-[#fdf0eb]/30'
+                  : 'border hover:border-[rgba(0,0,0,0.16)]'
               }`}
+              style={!isSelected ? { borderColor: 'rgba(0,0,0,0.08)' } : undefined}
             >
               {/* Card Header */}
               <div className="flex gap-4 p-4">
@@ -172,7 +178,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
                     {rec.matchReasons.map((reason) => (
                       <span
                         key={reason}
-                        className="inline-block text-xs bg-muted px-2 py-0.5 rounded-full"
+                        className="inline-block text-xs bg-accent text-primary px-2 py-0.5 rounded-full"
                       >
                         {t(reason)}
                       </span>
@@ -185,7 +191,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
               <div className="px-4 pb-2">
                 {rec.model.price && (
                   <div>
-                    <p className="text-lg font-bold">{rec.model.price}</p>
+                    <p className="text-price text-xl">{rec.model.price}</p>
                     <p className="text-xs text-muted-foreground">
                       {t('rec_orientativePrice')}
                     </p>
@@ -201,17 +207,20 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
               {/* Action Buttons */}
               <div className="flex gap-2 px-4 pb-4">
                 <Button
-                  variant={isSelected ? 'default' : 'outline'}
                   size="sm"
-                  className="flex-1"
+                  className={`flex-1 rounded-lg ${
+                    isSelected
+                      ? 'bg-primary text-white hover:brightness-[0.92]'
+                      : 'border-2 border-primary text-primary bg-transparent hover:bg-primary/5'
+                  }`}
                   onClick={() => toggleProduct(rec.model.id)}
                 >
                   <ShoppingCart className="h-4 w-4 mr-1" />
                   {isSelected ? t('rec_removeFromQuote') : t('rec_addToQuote')}
                 </Button>
                 <Button
-                  variant="outline"
                   size="sm"
+                  className="rounded-lg border border-[rgba(0,0,0,0.08)] text-muted-foreground bg-transparent hover:border-[rgba(0,0,0,0.16)] hover:bg-transparent"
                   onClick={() => setSpecsModelId(rec.model.id)}
                 >
                   <Eye className="h-4 w-4 mr-1" />
@@ -231,7 +240,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
                   }
                 >
                   <CollapsibleTrigger asChild>
-                    <button className="flex items-center justify-between w-full px-4 py-2 bg-muted/50 text-sm hover:bg-muted transition-colors">
+                    <button className="flex items-center justify-between w-full px-4 py-2 bg-[#f0ede7] text-sm hover:brightness-[0.97] transition-colors">
                       <span>{t('rec_accessories')}</span>
                       {accessoriesOpen[rec.model.id] ? (
                         <ChevronUp className="h-4 w-4" />
@@ -241,7 +250,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
                     </button>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <div className="px-4 py-3 space-y-2 bg-muted/30">
+                    <div className="px-4 py-3 space-y-2 bg-[#f9f7f4]">
                       {modelAccessories.map((acc) => {
                         const isAccSelected = state.selectedAccessories.some(
                           (a) =>
@@ -283,7 +292,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
                   </CollapsibleContent>
                 </Collapsible>
               )}
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -298,7 +307,10 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
       {selectedModels.length > 0 && (
         <Collapsible open={roiOpen} onOpenChange={setRoiOpen}>
           <CollapsibleTrigger asChild>
-            <button className="flex items-center gap-2 w-full border rounded-lg px-4 py-3 text-left hover:bg-muted/50 transition-colors">
+            <button
+              className="flex items-center gap-2 w-full rounded-lg px-4 py-3 text-left transition-colors hover:bg-muted/50"
+              style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+            >
               <Calculator className="h-5 w-5" />
               <span className="font-semibold flex-1">{t('rec_roiCalculator')}</span>
               {roiOpen ? (
@@ -309,7 +321,10 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="border border-t-0 rounded-b-lg p-4 space-y-6">
+            <div
+              className="rounded-b-lg p-4 space-y-6 border border-t-0"
+              style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+            >
               {selectedModels.map((rec) => {
                 const price = parsePrice(rec.model.price) ?? 0;
                 const costPerPrint = rec.costPerPrint ?? 0;
@@ -364,7 +379,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-3 text-center">
-                      <div className="bg-muted rounded-lg p-3">
+                      <div className="bg-[#fdf0eb] rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">
                           {t('rec_monthsToRecover')}
                         </p>
@@ -374,7 +389,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
                             : roi.monthsToRecover}
                         </p>
                       </div>
-                      <div className="bg-muted rounded-lg p-3">
+                      <div className="bg-[#fdf0eb] rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">
                           {t('rec_dailyProfit')}
                         </p>
@@ -382,7 +397,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
                           {formatPrice(Math.round(roi.dailyProfit * 100) / 100)}
                         </p>
                       </div>
-                      <div className="bg-muted rounded-lg p-3">
+                      <div className="bg-[#fdf0eb] rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">
                           {t('rec_yearlyProfit')}
                         </p>
@@ -402,7 +417,10 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
       {/* Compare Button */}
       {selectedModels.length >= 2 && selectedModels.length <= 3 && (
         <div className="flex justify-center">
-          <Button variant="outline" onClick={() => setCompareOpen(true)}>
+          <Button
+            className="border-2 border-primary text-primary bg-transparent rounded-lg hover:bg-primary/5"
+            onClick={() => setCompareOpen(true)}
+          >
             <Columns3 className="h-4 w-4 mr-2" />
             {t('rec_compareModels')}
           </Button>
@@ -414,7 +432,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
         open={specsModelId !== null}
         onOpenChange={(open) => !open && setSpecsModelId(null)}
       >
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg rounded-xl">
           <DialogHeader>
             <DialogTitle>{specsModel?.fullName ?? ''}</DialogTitle>
           </DialogHeader>
@@ -461,7 +479,7 @@ export function StepRecommendations({ state, updateState, t }: StepProps) {
 
       {/* Comparator Dialog */}
       <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-xl">
           <DialogHeader>
             <DialogTitle>{t('rec_comparison')}</DialogTitle>
           </DialogHeader>

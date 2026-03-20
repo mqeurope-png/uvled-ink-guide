@@ -30,7 +30,7 @@ export function WizardProgressBar({
   const percentage = Math.round((currentStep / totalSteps) * 100) + '%';
 
   return (
-    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
       {/* Desktop view */}
       <div className="hidden md:block px-6 py-4">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
@@ -42,7 +42,6 @@ export function WizardProgressBar({
 
             return (
               <div key={step} className="flex items-center flex-1 last:flex-none">
-                {/* Step indicator */}
                 <button
                   type="button"
                   onClick={() => {
@@ -57,13 +56,13 @@ export function WizardProgressBar({
                     className={cn(
                       'relative flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold transition-all duration-300',
                       isCompleted &&
-                        'bg-primary text-primary-foreground cursor-pointer hover:bg-primary/90',
+                        'bg-primary text-white cursor-pointer hover:brightness-[0.92]',
                       isCurrent &&
-                        'ring-2 ring-primary ring-offset-2 ring-offset-background bg-primary text-primary-foreground animate-pulse cursor-pointer',
+                        'ring-2 ring-primary ring-offset-2 ring-offset-background bg-primary text-white cursor-pointer',
                       !isCompleted &&
                         !isCurrent &&
                         accessible &&
-                        'bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80',
+                        'bg-muted text-muted-foreground cursor-pointer hover:bg-primary/10 hover:text-primary',
                       !isCompleted &&
                         !isCurrent &&
                         !accessible &&
@@ -78,8 +77,8 @@ export function WizardProgressBar({
                   </div>
                   <span
                     className={cn(
-                      'text-xs transition-all duration-300 whitespace-nowrap',
-                      isCompleted && 'text-foreground font-medium',
+                      'text-xs font-medium transition-all duration-300 whitespace-nowrap',
+                      isCompleted && 'text-foreground',
                       isCurrent && 'text-primary font-semibold',
                       !isCompleted && !isCurrent && 'text-muted-foreground'
                     )}
@@ -88,12 +87,11 @@ export function WizardProgressBar({
                   </span>
                 </button>
 
-                {/* Connecting line */}
                 {step < totalSteps && (
                   <div className="flex-1 mx-2 mt-[-1.25rem]">
                     <div
                       className={cn(
-                        'h-0.5 transition-all duration-300',
+                        'h-0.5 rounded-full transition-all duration-300',
                         step < currentStep
                           ? 'bg-primary'
                           : 'bg-muted'
@@ -111,7 +109,7 @@ export function WizardProgressBar({
       <div className="md:hidden px-4 py-3">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white text-xs font-bold">
               {currentStep}
             </span>
             <span className="text-sm font-medium">
@@ -122,7 +120,7 @@ export function WizardProgressBar({
             {percentage}
           </span>
         </div>
-        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
           <div
             className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
             style={{ width: percentage }}
