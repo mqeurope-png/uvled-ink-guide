@@ -27,7 +27,7 @@ export interface Lead {
 
 // ── Product types ──
 
-export type ProductCategory = 'uv_led_printer' | 'textile_printer' | 'laser_cutter' | 'packaging' | 'cards';
+export type ProductCategory = 'uv_led_printer' | 'textile_printer' | 'laser_cutter' | 'packaging' | 'cards' | 'gran_formato' | 'vending';
 
 export interface ProductSpec {
   key: string;
@@ -59,6 +59,36 @@ export interface AdminProduct {
   createdAt: string;
   updatedAt: string;
 }
+
+// ── Consumable types ──
+
+export type ConsumableType = 'printhead' | 'damper' | 'capping' | 'wiper' | 'cleanStation' | 'tubes' | 'ink' | 'accessory';
+
+export interface AdminConsumable {
+  id: string;
+  name: string;
+  type: ConsumableType;
+  description: string;
+  url: string;
+  image: string;
+  price: string;
+  lifespan: string;
+  compatibleModelIds: string[]; // product IDs this consumable works with
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const CONSUMABLE_TYPES: { value: ConsumableType; label: string }[] = [
+  { value: 'printhead', label: 'Printhead' },
+  { value: 'damper', label: 'Damper' },
+  { value: 'capping', label: 'Capping Station' },
+  { value: 'wiper', label: 'Wiper Blade' },
+  { value: 'cleanStation', label: 'Clean Station' },
+  { value: 'tubes', label: 'Tubes' },
+  { value: 'ink', label: 'Ink' },
+  { value: 'accessory', label: 'Accessory' },
+];
 
 // ── Recommendation Rule types ──
 
@@ -134,10 +164,12 @@ export const RULE_OPERATORS: { value: RuleOperator; label: string }[] = [
 
 export const PRODUCT_CATEGORIES: { value: ProductCategory; label: string }[] = [
   { value: 'uv_led_printer', label: 'UV LED Printer' },
+  { value: 'gran_formato', label: 'Gran Formato' },
   { value: 'textile_printer', label: 'Textile Printer' },
   { value: 'laser_cutter', label: 'Laser Cutter' },
   { value: 'packaging', label: 'Packaging' },
   { value: 'cards', label: 'Cards' },
+  { value: 'vending', label: 'Vending' },
 ];
 
 export const LEAD_STATUSES: { value: LeadStatus; label: string; color: string }[] = [

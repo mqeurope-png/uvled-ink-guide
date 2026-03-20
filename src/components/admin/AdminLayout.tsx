@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Users,
   Package,
+  Wrench,
   Sparkles,
   Settings,
   LogOut,
@@ -13,8 +14,9 @@ import { LeadsDashboard } from './LeadsDashboard';
 import { ProductCatalog } from './ProductCatalog';
 import { RecommendationRules } from './RecommendationRules';
 import { GlobalSettings } from './GlobalSettings';
+import { AccessoriesCatalog } from './AccessoriesCatalog';
 
-type AdminSection = 'leads' | 'products' | 'rules' | 'settings';
+type AdminSection = 'leads' | 'products' | 'accessories' | 'rules' | 'settings';
 
 interface AdminLayoutProps {
   onLogout: () => void;
@@ -23,6 +25,7 @@ interface AdminLayoutProps {
 const NAV_ITEMS: { id: AdminSection; label: string; icon: typeof Users }[] = [
   { id: 'leads', label: 'Leads', icon: Users },
   { id: 'products', label: 'Products', icon: Package },
+  { id: 'accessories', label: 'Accessories', icon: Wrench },
   { id: 'rules', label: 'Rules', icon: Sparkles },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
@@ -35,6 +38,7 @@ export function AdminLayout({ onLogout }: AdminLayoutProps) {
     switch (section) {
       case 'leads': return <LeadsDashboard />;
       case 'products': return <ProductCatalog />;
+      case 'accessories': return <AccessoriesCatalog />;
       case 'rules': return <RecommendationRules />;
       case 'settings': return <GlobalSettings />;
     }

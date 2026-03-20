@@ -1,4 +1,4 @@
-import { Lead, LeadStatus, AdminProduct, RecommendationRule, GlobalSettings, DEFAULT_SETTINGS } from './adminTypes';
+import { Lead, LeadStatus, AdminProduct, AdminConsumable, RecommendationRule, GlobalSettings, DEFAULT_SETTINGS, ProductCategory } from './adminTypes';
 import { printerModels } from './printerData';
 
 const KEYS = {
@@ -8,6 +8,7 @@ const KEYS = {
   settings: 'bomedia_admin_settings',
   auth: 'bomedia_admin_auth',
   featureTags: 'bomedia_admin_tags',
+  consumables: 'bomedia_admin_consumables',
 };
 
 // ── Auth ──
@@ -141,6 +142,40 @@ export function addFeatureTag(tag: string): void {
   }
 }
 
+// ── Consumables ──
+
+export function getConsumables(): AdminConsumable[] {
+  const items = load<AdminConsumable[]>(KEYS.consumables, []);
+  if (items.length === 0) {
+    const seeded = seedConsumablesFromPrinterData();
+    save(KEYS.consumables, seeded);
+    return seeded;
+  }
+  return items;
+}
+
+export function getConsumable(id: string): AdminConsumable | undefined {
+  return getConsumables().find(c => c.id === id);
+}
+
+export function saveConsumable(item: AdminConsumable): void {
+  const items = getConsumables();
+  const idx = items.findIndex(c => c.id === item.id);
+  item.updatedAt = new Date().toISOString();
+  if (idx !== -1) {
+    items[idx] = item;
+  } else {
+    item.createdAt = new Date().toISOString();
+    items.push(item);
+  }
+  save(KEYS.consumables, items);
+}
+
+export function deleteConsumable(id: string): void {
+  const items = getConsumables().filter(c => c.id !== id);
+  save(KEYS.consumables, items);
+}
+
 // ── Recommendation Rules ──
 
 export function getRules(): RecommendationRule[] {
@@ -199,7 +234,7 @@ function seedProductsFromPrinterData(): AdminProduct[] {
     id: m.id,
     name: m.name,
     model: m.fullName,
-    category: 'uv_led_printer' as const,
+    category: (m.category === 'mbo-granformato' ? 'gran_formato' : m.category === 'pimpam' ? 'vending' : 'uv_led_printer') as ProductCategory,
     shortDescription: `${m.brand} ${m.fullName} - Print area: ${m.specs.printArea}`,
     longDescription: '',
     priceRange: m.price || '',
@@ -285,5 +320,103 @@ function seedDefaultRules(): RecommendationRule[] {
       createdAt: now,
       updatedAt: now,
     },
+    {
+      id: 'rule_pimpam_retail',
+      name: 'Retail/Events → PimPam',
+      conditions: [
+        { field: 'businessProfile', operator: 'in', value: 'personalization,ecommerce,hospitality' },
+      ],
+      recommendedProductIds: ['pimpam-casebox', 'pimpam-whitelabel'],
+      priority: 5,
+      enabled: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: 'rule_granformato',
+      name: 'Large format → MBO Gran Formato',
+      conditions: [
+        { field: 'productionType', operator: 'equals', value: 'uvPrinting' },
+        { field: 'uvMaxSize', operator: 'equals', value: '100x160' },
+        { field: 'investmentRange', operator: 'in', value: 'over40k,financing' },
+      ],
+      recommendedProductIds: ['mbo-uv1612g', 'mbo-uv1812', 'mbo-uv2513'],
+      priority: 35,
+      enabled: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: 'rule_proud_cards',
+      name: 'PVC Cards → artisJet Proud',
+      conditions: [
+        { field: 'productionType', operator: 'equals', value: 'pvcCards' },
+      ],
+      recommendedProductIds: ['artisjet-proud'],
+      priority: 25,
+      enabled: true,
+      createdAt: now,
+      updatedAt: now,
+    },
   ];
+}
+
+function seedConsumablesFromPrinterData(): AdminConsumable[] {
+  const now = new Date().toISOString();
+  const map = new Map<string, AdminConsumable>();
+
+  for (const model of printerModels) {
+    // Process consumables
+    for (const c of model.consumables) {
+      const key = `${c.type}-${c.id}`;
+      if (map.has(key)) {
+        const existing = map.get(key)!;
+        if (!existing.compatibleModelIds.includes(model.id)) {
+          existing.compatibleModelIds.push(model.id);
+        }
+      } else {
+        map.set(key, {
+          id: key,
+          name: c.name,
+          type: c.type,
+          description: c.description,
+          url: c.url,
+          image: c.image || '',
+          price: c.price || '',
+          lifespan: c.lifespan || '',
+          compatibleModelIds: [model.id],
+          active: true,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
+    // Process accessories
+    for (const a of model.accessories) {
+      const key = `accessory-${a.id}`;
+      if (map.has(key)) {
+        const existing = map.get(key)!;
+        if (!existing.compatibleModelIds.includes(model.id)) {
+          existing.compatibleModelIds.push(model.id);
+        }
+      } else {
+        map.set(key, {
+          id: key,
+          name: a.name,
+          type: 'accessory',
+          description: a.description,
+          url: a.url,
+          image: a.image || '',
+          price: a.price || '',
+          lifespan: '',
+          compatibleModelIds: [model.id],
+          active: true,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
+  }
+
+  return Array.from(map.values());
 }
