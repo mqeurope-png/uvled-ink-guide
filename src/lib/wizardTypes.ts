@@ -34,7 +34,7 @@ export type UvMaxSize = typeof UV_MAX_SIZES[number];
 export const UV_SURFACE_TYPES = ['flat', 'cylindrical', 'irregular'] as const;
 export type UvSurfaceType = typeof UV_SURFACE_TYPES[number];
 
-export const UV_MATERIALS = ['plastic', 'wood', 'metal', 'glass', 'ceramic', 'leather'] as const;
+export const UV_MATERIALS = ['plastic', 'wood', 'metal', 'glass', 'ceramic', 'leather', 'other'] as const;
 export type UvMaterial = typeof UV_MATERIALS[number];
 
 export const UV_SPECIAL_EFFECTS = ['3dRelief', 'varnish', 'braille', 'none'] as const;
@@ -118,7 +118,7 @@ export interface WizardState {
   laserSize: LaserSize | '';
 
   // Step 3 - Packaging
-  packagingContainerType: PackagingContainerType | '';
+  packagingContainerType: PackagingContainerType[];
   packagingMaterial: PackagingMaterial | '';
   packagingDimensions: string;
   packagingMinBatch: number;
@@ -168,7 +168,7 @@ export const initialWizardState: WizardState = {
   laserWorkType: '',
   laserMaterial: '',
   laserSize: '',
-  packagingContainerType: '',
+  packagingContainerType: [],
   packagingMaterial: '',
   packagingDimensions: '',
   packagingMinBatch: 100,
@@ -227,7 +227,7 @@ function isStep3Valid(state: WizardState): boolean {
         if (state.laserWorkType !== '' && state.laserMaterial !== '') return true;
         break;
       case 'packaging':
-        if (state.packagingContainerType !== '' && state.packagingMaterial !== '') return true;
+        if (state.packagingContainerType.length > 0 && state.packagingMaterial !== '') return true;
         break;
       case 'pvcCards':
         if (state.cardMaterial !== '' && state.cardFormat !== '') return true;

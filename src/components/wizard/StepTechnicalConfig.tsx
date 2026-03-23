@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   Square,
   Circle,
@@ -51,14 +50,12 @@ function SelectionCard({
   className?: string;
 }) {
   return (
-    <motion.button
+    <button
       type="button"
       onClick={onClick}
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
       className={`
         relative flex flex-col items-center justify-center gap-1 rounded-lg p-4 text-center
-        transition-shadow duration-200 cursor-pointer
+        transition-shadow transition-colors duration-200 cursor-pointer
         ${selected
           ? 'bg-[#fdf0eb] border-2 border-primary'
           : 'bg-card border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-md'
@@ -72,7 +69,7 @@ function SelectionCard({
         </div>
       )}
       {children}
-    </motion.button>
+    </button>
   );
 }
 
@@ -344,15 +341,21 @@ function PackagingConfig({ state, updateState, t }: StepProps) {
 
       <SectionHeading>{t('tc_containerType')}</SectionHeading>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {PACKAGING_CONTAINER_TYPES.map((ct) => (
-          <SelectionCard
-            key={ct}
-            selected={state.packagingContainerType === ct}
-            onClick={() => updateState({ packagingContainerType: ct })}
-          >
-            <span className="font-medium text-sm">{t(`tc_container_${ct}`)}</span>
-          </SelectionCard>
-        ))}
+        {PACKAGING_CONTAINER_TYPES.map((ct) => {
+          const isSelected = state.packagingContainerType.includes(ct);
+          return (
+            <SelectionCard
+              key={ct}
+              selected={isSelected}
+              onClick={() => {
+                const current = state.packagingContainerType;
+                updateState({ packagingContainerType: isSelected ? current.filter(c => c !== ct) : [...current, ct] });
+              }}
+            >
+              <span className="font-medium text-sm">{t(`tc_container_${ct}`)}</span>
+            </SelectionCard>
+          );
+        })}
       </div>
 
       <SectionHeading>{t('tc_packMaterial')}</SectionHeading>

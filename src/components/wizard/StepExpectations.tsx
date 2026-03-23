@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   Zap,
   Calendar,
@@ -49,14 +48,12 @@ function OptionCard({
   badge?: string;
 }) {
   return (
-    <motion.button
+    <button
       type="button"
       onClick={onClick}
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
       className={`
         relative flex flex-col items-center justify-center gap-2 rounded-lg p-4 text-center
-        transition-shadow duration-200 cursor-pointer
+        transition-shadow transition-colors duration-200 cursor-pointer
         ${selected
           ? 'bg-[#fdf0eb] border-2 border-primary'
           : 'bg-card border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-md'
@@ -78,7 +75,7 @@ function OptionCard({
       {sublabel && (
         <span className="text-xs text-muted-foreground">{sublabel}</span>
       )}
-    </motion.button>
+    </button>
   );
 }
 

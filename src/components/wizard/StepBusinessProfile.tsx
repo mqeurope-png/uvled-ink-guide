@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   Store, PanelTop, Palette, ShoppingCart, Factory,
   UtensilsCrossed, User, MoreHorizontal, Check,
@@ -46,17 +45,15 @@ export function StepBusinessProfile({ state, updateState, t }: StepProps) {
           const isSelected = state.businessProfile.includes(profile);
 
           return (
-            <motion.button
+            <button
               key={profile}
               type="button"
               onClick={() => toggleProfile(profile)}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
               className={`
                 relative flex flex-col items-start gap-3 rounded-lg p-6 text-left
-                transition-all duration-200 cursor-pointer
+                transition-shadow transition-colors duration-200 cursor-pointer
                 ${isSelected
-                  ? 'bg-[#fdf0eb] border-2 border-primary shadow-[0_8px_20px_rgba(232,82,42,0.2)] -translate-y-[3px]'
+                  ? 'bg-[#fdf0eb] border-2 border-primary shadow-[0_8px_20px_rgba(232,82,42,0.2)]'
                   : 'bg-card border border-[rgba(0,0,0,0.08)] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]'
                 }
               `}
@@ -73,7 +70,7 @@ export function StepBusinessProfile({ state, updateState, t }: StepProps) {
                   {t(`bp_${profile}Desc`)}
                 </p>
               </div>
-            </motion.button>
+            </button>
           );
         })}
       </div>

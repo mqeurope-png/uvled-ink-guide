@@ -150,19 +150,17 @@ export function StepCustomerData({ state, updateState, t, onExportPDF, onSendEma
           {CONTACT_OPTIONS.map(({ value, icon: Icon }) => {
             const isSelected = state.preferredContact === value;
             return (
-              <motion.button
+              <button
                 key={value}
                 type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 onClick={() => updateState({ preferredContact: value })}
                 className={`
                   relative flex flex-col items-center gap-2 rounded-lg p-4
-                  transition-all duration-150 cursor-pointer
+                  transition-shadow transition-colors duration-150 cursor-pointer
                   ${
                     isSelected
                       ? 'border-2 border-primary bg-[#fdf0eb]'
-                      : 'border hover:border-[rgba(0,0,0,0.16)]'
+                      : 'border hover:border-[rgba(0,0,0,0.16)] hover:shadow-md'
                   }
                 `}
                 style={!isSelected ? { borderColor: 'rgba(0,0,0,0.08)' } : undefined}
@@ -176,7 +174,7 @@ export function StepCustomerData({ state, updateState, t, onExportPDF, onSendEma
                 <span className="text-sm font-medium">
                   {t(`cd_contact${value.charAt(0).toUpperCase() + value.slice(1)}`)}
                 </span>
-              </motion.button>
+              </button>
             );
           })}
         </div>

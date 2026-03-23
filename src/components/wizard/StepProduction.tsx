@@ -82,17 +82,15 @@ export function StepProduction({ state, updateState, t }: StepProps) {
           const isComingSoon = type !== 'uvPrinting' && type !== 'pvcCards';
 
           return (
-            <motion.button
+            <button
               key={type}
               type="button"
               onClick={() => toggleType(type)}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
               className={`
                 relative flex flex-col items-start gap-3 rounded-lg p-6 text-left
-                transition-all duration-200 cursor-pointer
+                transition-shadow transition-colors duration-200 cursor-pointer
                 ${isSelected
-                  ? 'bg-[#fdf0eb] border-2 border-primary shadow-[0_8px_20px_rgba(232,82,42,0.2)] -translate-y-[3px]'
+                  ? 'bg-[#fdf0eb] border-2 border-primary shadow-[0_8px_20px_rgba(232,82,42,0.2)]'
                   : 'bg-card border border-[rgba(0,0,0,0.08)] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.16)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]'
                 }
               `}
@@ -124,7 +122,7 @@ export function StepProduction({ state, updateState, t }: StepProps) {
                   {t(`pr_${type}Desc`)}
                 </p>
               </div>
-            </motion.button>
+            </button>
           );
         })}
       </div>

@@ -196,7 +196,7 @@ function Step3Summary({ state, t }: { state: WizardState; t: (key: string) => st
     (state.laserWorkType || state.laserMaterial);
   const hasPackagingData =
     state.productionType.includes('packaging') &&
-    (state.packagingContainerType || state.packagingMaterial);
+    (state.packagingContainerType.length > 0 || state.packagingMaterial);
   const hasCardData =
     state.productionType.includes('pvcCards') &&
     (state.cardMaterial || state.cardFormat);
@@ -242,7 +242,7 @@ function Step3Summary({ state, t }: { state: WizardState; t: (key: string) => st
         )}
         {hasPackagingData && (
           <>
-            {state.packagingContainerType && <p>{t(`tc_container_${state.packagingContainerType}`)}</p>}
+            {state.packagingContainerType.length > 0 && <p>{state.packagingContainerType.map(ct => t(`tc_container_${ct}`)).join(', ')}</p>}
             {state.packagingMaterial && (
               <p className="text-muted-foreground">{t(`tc_material_${state.packagingMaterial}`)}</p>
             )}
